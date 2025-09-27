@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Briefcase, Shield, Eye, EyeOff, Plus } from 'lucide-react';
 
 type UserType = 'patient' | 'doctor' | 'admin';
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedUserType, setSelectedUserType] = useState<UserType>('patient');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -161,9 +163,12 @@ const LoginPage: React.FC = () => {
           <div className="text-center mt-8">
             <p className="text-gray-600">
               ¿No tienes cuenta?{' '}
-              <a href="#" className="text-cyan-600 hover:text-cyan-700 font-medium">
+              <button 
+                onClick={() => navigate('/register')}
+                className="text-cyan-600 hover:text-cyan-700 font-medium underline"
+              >
                 Regístrate aquí
-              </a>
+              </button>
             </p>
           </div>
         </div>
