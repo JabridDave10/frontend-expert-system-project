@@ -6,6 +6,19 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Importante para incluir cookies HttpOnly
 });
+
+// Interceptor para manejar respuestas de error
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expirado o inválido - redirigir al login
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

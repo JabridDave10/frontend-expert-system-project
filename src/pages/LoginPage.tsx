@@ -1,21 +1,69 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Briefcase, Shield, Eye, EyeOff, Plus } from 'lucide-react';
+import { useLoginForm } from '../hooks/useLoginForm';
+import { login } from '../api/axiosAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 type UserType = 'patient' | 'doctor' | 'admin';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
+  const {
+    formData,
+    errors,
+    isLoading,
+    setFieldValue,
+    validateForm,
+    setIsLoading
+  } = useLoginForm();
+
   const [selectedUserType, setSelectedUserType] = useState<UserType>('patient');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica de autenticación
-    console.log('Login attempt:', { selectedUserType, email, password, rememberMe });
+    setSubmitError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await login(formData);
+      
+      // Guardar los datos del usuario (el token se maneja en cookies HttpOnly)
+      authLogin(response.user);
+      
+      // Redirigir según el tipo de usuario
+      switch (response.user.id_role) {
+        case 1: // Paciente
+          navigate('/patient/dashboard');
+          break;
+        case 2: // Doctor
+          navigate('/doctor/dashboard');
+          break;
+        case 3: // Admin
+          navigate('/admin/dashboard');
+          break;
+        default:
+          navigate('/dashboard');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      if (error.response?.data?.detail) {
+        setSubmitError(error.response.data.detail);
+      } else {
+        setSubmitError('Error al iniciar sesión. Verifica tus credenciales.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const userTypes = [
@@ -91,6 +139,13 @@ const LoginPage: React.FC = () => {
             })}
           </div>
 
+          {/* Error Message */}
+          {submitError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {submitError}
+            </div>
+          )}
+
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
@@ -101,12 +156,17 @@ const LoginPage: React.FC = () => {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => setFieldValue('email', e.target.value)}
                 placeholder="ejemplo@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
+                  errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
 
             {/* Password Field */}
@@ -118,10 +178,12 @@ const LoginPage: React.FC = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={(e) => setFieldValue('password', e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
+                    errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 <button
@@ -132,6 +194,9 @@ const LoginPage: React.FC = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
 
             {/* Remember Me & Forgot Password */}
@@ -153,9 +218,14 @@ const LoginPage: React.FC = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-cyan-600 hover:to-teal-700 transition-all duration-200 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+              disabled={isLoading}
+              className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
+                isLoading
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white hover:from-cyan-600 hover:to-teal-700'
+              }`}
             >
-              Iniciar Sesión
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
 

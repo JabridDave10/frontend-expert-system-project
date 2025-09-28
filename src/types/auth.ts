@@ -37,6 +37,20 @@ export interface UserResponseDto {
 export interface LoginFormData {
   email: string;
   password: string;
-  userType: UserType;
-  rememberMe: boolean;
+}
+
+export interface UserInfo {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  id_role: number;
+  id_status: boolean;
+}
+
+export interface LoginResponse {
+  message: string;
+  access_token: string;
+  token_type: string;
+  user: UserInfo;
 }

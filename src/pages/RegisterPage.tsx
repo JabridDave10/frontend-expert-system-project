@@ -287,6 +287,7 @@ const RegisterPage: React.FC = () => {
                     value={formData.password}
                     onChange={(e) => setFieldValue('password', e.target.value)}
                     placeholder="********"
+                    maxLength={72}
                     className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
                       errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
@@ -316,6 +317,7 @@ const RegisterPage: React.FC = () => {
                     value={formData.confirmPassword}
                     onChange={(e) => setFieldValue('confirmPassword', e.target.value)}
                     placeholder="********"
+                    maxLength={72}
                     className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                     }`}
