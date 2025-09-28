@@ -86,6 +86,8 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
       newErrors.password = 'La contraseña es obligatoria';
     } else if (formData.password.length < 8) {
       newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+    } else if (formData.password.length > 72) {
+      newErrors.password = 'La contraseña no puede tener más de 72 caracteres';
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
       newErrors.password = 'La contraseña debe contener al menos una mayúscula, una minúscula y un número';
     }
