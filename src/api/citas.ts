@@ -19,6 +19,21 @@ export interface CitaResponse {
   id_doctor: number;
 }
 
+export interface DashboardStats {
+  today_appointments: number;
+  active_patients: number;
+  pending_appointments: number;
+}
+
+export interface TodayAppointment {
+  id: number;
+  patient_name: string;
+  appointment_date: string;
+  reason: string;
+  status: string;
+  duration: string;
+}
+
 // Crear una nueva cita
 export const createCita = async (citaData: CitaCreate): Promise<CitaResponse> => {
   try {
@@ -150,6 +165,46 @@ export const testCitasConnection = async () => {
   }
 };
 
+// Obtener estadísticas del dashboard
+export const getDashboardStats = async (): Promise<DashboardStats> => {
+  try {
+    console.log('🔍 Obteniendo estadísticas del dashboard...');
+
+    const response = await axios.get(`${BASE_URL}/citas/stats/dashboard`, {
+      withCredentials: true,
+    });
+
+    console.log('✅ Estadísticas del dashboard obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener estadísticas del dashboard:', error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Error al obtener las estadísticas del dashboard');
+    }
+    throw error;
+  }
+};
+
+// Obtener citas de hoy con detalles
+export const getTodayAppointments = async (): Promise<TodayAppointment[]> => {
+  try {
+    console.log('🔍 Obteniendo citas de hoy...');
+
+    const response = await axios.get(`${BASE_URL}/citas/today`, {
+      withCredentials: true,
+    });
+
+    console.log('✅ Citas de hoy obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener citas de hoy:', error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Error al obtener las citas de hoy');
+    }
+    throw error;
+  }
+};
+
 // API object para consistencia
 export const citasApi = {
   createCita,
@@ -157,5 +212,7 @@ export const citasApi = {
   getCitaById,
   getCitasByDoctor,
   getCitasByPaciente,
-  testCitasConnection
+  testCitasConnection,
+  getDashboardStats,
+  getTodayAppointments
 };

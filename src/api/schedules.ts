@@ -50,8 +50,7 @@ export interface AvailableSlots {
   available_slots: TimeSlot[];
 }
 
-// Export types explicitly
-export type { TimeSlot, DoctorSchedule, WeeklySchedule, DoctorSettings, AvailabilityException, AvailableSlots };
+// Types are already exported with their declarations above
 
 // API Functions
 export const schedulesApi = {

@@ -18,7 +18,6 @@ const DAYS_OF_WEEK = [
 ];
 
 const WeeklyScheduleGrid: React.FC<WeeklyScheduleGridProps> = ({ doctorId, onScheduleChange }) => {
-  const [schedules, setSchedules] = useState<DoctorSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingSchedules, setEditingSchedules] = useState<DoctorSchedule[]>([]);
@@ -31,12 +30,10 @@ const WeeklyScheduleGrid: React.FC<WeeklyScheduleGridProps> = ({ doctorId, onSch
     try {
       setLoading(true);
       const response = await schedulesApi.getDoctorSchedule(doctorId);
-      setSchedules(response.schedules);
       setEditingSchedules(response.schedules);
     } catch (error) {
       console.error('Error loading schedules:', error);
       // Inicializar con horarios vacíos si no existen
-      setSchedules([]);
       setEditingSchedules([]);
     } finally {
       setLoading(false);
@@ -68,7 +65,6 @@ const WeeklyScheduleGrid: React.FC<WeeklyScheduleGridProps> = ({ doctorId, onSch
     try {
       setSaving(true);
       await schedulesApi.createWeeklySchedule(doctorId, { schedules: editingSchedules });
-      setSchedules(editingSchedules);
       onScheduleChange?.();
       alert('Horarios guardados exitosamente');
     } catch (error) {
