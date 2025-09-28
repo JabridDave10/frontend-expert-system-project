@@ -40,9 +40,9 @@ const LoginPage: React.FC = () => {
       // Guardar los datos del usuario (el token se maneja en cookies HttpOnly)
       authLogin(response.user);
       
-      // Login exitoso - mostrar mensaje
+      // Login exitoso - redirigir al dashboard
       setSubmitError('');
-      alert(`¡Login exitoso! Bienvenido ${response.user.firstName} ${response.user.lastName}`);
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       if (error.response?.data?.detail) {
