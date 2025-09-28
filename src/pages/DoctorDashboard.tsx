@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Calendar,
   Users,
@@ -40,6 +41,20 @@ interface Appointment {
 }
 
 const DoctorDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Manejar mensaje de éxito desde la navegación
+  useEffect(() => {
+    if (location.state?.successMessage) {
+      setSuccessMessage(location.state.successMessage);
+      // Limpiar el estado después de mostrarlo
+      window.history.replaceState({}, document.title);
+      // Ocultar mensaje después de 5 segundos
+      setTimeout(() => setSuccessMessage(''), 5000);
+    }
+  }, [location.state]);
   const doctorStats: DoctorStats[] = [
     {
       title: 'Citas Hoy',
@@ -138,25 +153,29 @@ const DoctorDashboard: React.FC = () => {
       title: 'Nueva Cita',
       description: 'Programar cita para paciente',
       icon: Calendar,
-      color: 'bg-blue-500 hover:bg-blue-600'
+      color: 'bg-blue-500 hover:bg-blue-600',
+      onClick: () => navigate('/crear-cita')
     },
     {
       title: 'Agregar Paciente',
       description: 'Registrar nuevo paciente',
       icon: UserCheck,
-      color: 'bg-green-500 hover:bg-green-600'
+      color: 'bg-green-500 hover:bg-green-600',
+      onClick: () => {} // Placeholder para futura funcionalidad
     },
     {
       title: 'Crear Receta',
       description: 'Generar receta médica',
       icon: FileText,
-      color: 'bg-purple-500 hover:bg-purple-600'
+      color: 'bg-purple-500 hover:bg-purple-600',
+      onClick: () => {} // Placeholder para futura funcionalidad
     },
     {
       title: 'Consulta Virtual',
       description: 'Iniciar videollamada',
       icon: Phone,
-      color: 'bg-orange-500 hover:bg-orange-600'
+      color: 'bg-orange-500 hover:bg-orange-600',
+      onClick: () => {} // Placeholder para futura funcionalidad
     }
   ];
 
@@ -188,6 +207,13 @@ const DoctorDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+          {successMessage}
+        </div>
+      )}
+
       {/* Doctor Welcome Section */}
       <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
         <div className="flex items-center justify-between">
@@ -236,6 +262,7 @@ const DoctorDashboard: React.FC = () => {
               return (
                 <button
                   key={index}
+                  onClick={action.onClick}
                   className={`w-full flex items-center p-3 rounded-lg ${action.color} text-white transition-colors`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
