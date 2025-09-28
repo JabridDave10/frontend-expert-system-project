@@ -160,29 +160,24 @@ const CreateCitaPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Volver al Dashboard
-              </button>
-            </div>
-            <h1 className="text-xl font-semibold text-gray-900">Nueva Cita Médica</h1>
-            <div className="w-32" /> {/* Spacer para centrar el título */}
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-600">Programa una nueva cita médica para tus pacientes</p>
         </div>
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Volver al Dashboard
+        </button>
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-6">
+      <div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           {/* Error Message */}
           {submitError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">

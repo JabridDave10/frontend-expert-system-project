@@ -6,13 +6,15 @@ interface DashboardLayoutProps {
   userType: 'patient' | 'doctor' | 'admin';
   userName: string;
   onLogout: () => void;
+  pageTitle?: string;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
   userType,
   userName,
-  onLogout
+  onLogout,
+  pageTitle = 'Dashboard'
 }) => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -29,7 +31,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-gray-800">
-              Dashboard
+              {pageTitle}
             </h1>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">

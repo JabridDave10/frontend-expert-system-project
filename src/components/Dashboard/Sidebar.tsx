@@ -76,6 +76,13 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       userTypes: ['doctor', 'admin']
     },
     {
+      id: 'citas',
+      label: 'Mis Citas',
+      icon: Calendar,
+      path: '/dashboard/citas',
+      userTypes: ['doctor', 'admin']
+    },
+    {
       id: 'patients',
       label: 'Pacientes',
       icon: Users,

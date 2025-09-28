@@ -82,6 +82,46 @@ export const getCitaById = async (citaId: number): Promise<CitaResponse> => {
   }
 };
 
+// Obtener citas de un doctor específico
+export const getCitasByDoctor = async (doctorId: number): Promise<CitaResponse[]> => {
+  try {
+    console.log(`🔍 Obteniendo citas del doctor ID: ${doctorId}`);
+
+    const response = await axios.get(`${BASE_URL}/citas/doctor/${doctorId}`, {
+      withCredentials: true,
+    });
+
+    console.log('✅ Citas del doctor obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener citas del doctor:', error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Error al obtener las citas del doctor');
+    }
+    throw error;
+  }
+};
+
+// Obtener citas de un paciente específico
+export const getCitasByPaciente = async (pacienteId: number): Promise<CitaResponse[]> => {
+  try {
+    console.log(`🔍 Obteniendo citas del paciente ID: ${pacienteId}`);
+
+    const response = await axios.get(`${BASE_URL}/citas/paciente/${pacienteId}`, {
+      withCredentials: true,
+    });
+
+    console.log('✅ Citas del paciente obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener citas del paciente:', error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Error al obtener las citas del paciente');
+    }
+    throw error;
+  }
+};
+
 // Probar conexión con el endpoint de citas
 export const testCitasConnection = async () => {
   try {
