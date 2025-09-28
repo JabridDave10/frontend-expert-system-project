@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Calendar,
-  Clock,
   FileText,
   Search,
   User,
@@ -125,11 +124,6 @@ const CreateCitaPage: React.FC = () => {
     }
   };
 
-  const toggleCalendar = () => {
-    if (user) {
-      setShowCalendar(!showCalendar);
-    }
-  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, X } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { schedulesApi, type TimeSlot } from '../../api/schedules';
 
 interface AvailabilityCalendarProps {

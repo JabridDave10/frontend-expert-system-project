@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getDashboardStats, getTodayAppointments, type DashboardStats as DashboardStatsType, type TodayAppointment } from '../api/citas';
 import {
   Calendar,
   Users,
@@ -31,19 +32,34 @@ interface Patient {
   status: 'stable' | 'critical' | 'improving';
 }
 
-interface Appointment {
-  id: string;
-  patient: string;
-  time: string;
-  type: string;
-  status: 'confirmed' | 'pending' | 'completed';
-  duration: string;
-}
 
 const DoctorDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [dashboardStats, setDashboardStats] = useState<DashboardStatsType | null>(null);
+  const [todayAppointments, setTodayAppointments] = useState<TodayAppointment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Cargar estadísticas del dashboard y citas de hoy
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const [stats, appointments] = await Promise.all([
+          getDashboardStats(),
+          getTodayAppointments()
+        ]);
+        setDashboardStats(stats);
+        setTodayAppointments(appointments);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
 
   // Manejar mensaje de éxito desde la navegación
   useEffect(() => {
@@ -58,68 +74,40 @@ const DoctorDashboard: React.FC = () => {
   const doctorStats: DoctorStats[] = [
     {
       title: 'Citas Hoy',
-      value: '8',
+      value: loading ? '...' : (dashboardStats?.today_appointments.toString() || '0'),
       change: '+12.5%',
       icon: Calendar,
       color: 'bg-blue-500'
     },
     {
       title: 'Pacientes Activos',
-      value: '142',
+      value: loading ? '...' : (dashboardStats?.active_patients.toString() || '0'),
       change: '+8.3%',
       icon: Users,
       color: 'bg-green-500'
     },
     {
       title: 'Consultas Pendientes',
-      value: '3',
+      value: loading ? '...' : (dashboardStats?.pending_appointments.toString() || '0'),
       change: '-15.2%',
       icon: Clock,
       color: 'bg-yellow-500'
-    },
-    {
-      title: 'Historiales Actualizados',
-      value: '5',
-      change: '+25.0%',
-      icon: FileText,
-      color: 'bg-purple-500'
     }
   ];
 
-  const todayAppointments: Appointment[] = [
-    {
-      id: '1',
-      patient: 'Ana García',
-      time: '09:00',
-      type: 'Consulta General',
-      status: 'confirmed',
-      duration: '30 min'
-    },
-    {
-      id: '2',
-      patient: 'Carlos Ruiz',
-      time: '10:30',
-      type: 'Seguimiento',
-      status: 'confirmed',
-      duration: '20 min'
-    },
-    {
-      id: '3',
-      patient: 'María Fernández',
-      time: '11:15',
-      type: 'Primera Consulta',
-      status: 'pending',
-      duration: '45 min'
-    },
-    {
-      id: '4',
-      patient: 'José López',
-      time: '14:00',
-      type: 'Control Post-op',
-      status: 'confirmed',
-      duration: '25 min'
+  // Función para formatear la hora desde datetime
+  const formatTime = (dateTimeString: string) => {
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch {
+      return 'N/A';
     }
-  ];
+  };
 
   const criticalPatients: Patient[] = [
     {
@@ -185,8 +173,10 @@ const DoctorDashboard: React.FC = () => {
         return 'bg-green-100 text-green-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'completed':
+      case 'scheduled':
         return 'bg-blue-100 text-blue-800';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -220,7 +210,8 @@ const DoctorDashboard: React.FC = () => {
           <div>
             <h2 className="text-2xl font-bold mb-2">Panel Médico</h2>
             <p className="text-teal-100">
-              Tienes 8 citas programadas hoy • 3 pacientes críticos requieren atención
+              {loading ? 'Cargando...' :
+               `Tienes ${dashboardStats?.today_appointments || 0} citas programadas hoy • ${dashboardStats?.pending_appointments || 0} consultas pendientes`}
             </p>
           </div>
           <Stethoscope className="w-8 h-8 text-teal-200" />
@@ -228,7 +219,7 @@ const DoctorDashboard: React.FC = () => {
       </div>
 
       {/* Doctor Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {doctorStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -280,28 +271,39 @@ const DoctorDashboard: React.FC = () => {
         {/* Today's Appointments */}
         <div className="lg:col-span-2 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Citas de Hoy</h3>
-          <div className="space-y-3">
-            {todayAppointments.map((appointment) => (
-              <div key={appointment.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0">
-                    <Clock className="w-5 h-5 text-gray-400" />
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">Cargando citas...</div>
+            </div>
+          ) : todayAppointments.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">No hay citas programadas para hoy</div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {todayAppointments.map((appointment) => (
+                <div key={appointment.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <Clock className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{appointment.patient_name}</p>
+                      <p className="text-sm text-gray-500">{appointment.reason} • {appointment.duration}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{appointment.patient}</p>
-                    <p className="text-sm text-gray-500">{appointment.type} • {appointment.duration}</p>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm font-medium text-gray-600">{formatTime(appointment.appointment_date)}</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
+                      {appointment.status === 'confirmed' ? 'Confirmada' :
+                       appointment.status === 'pending' ? 'Pendiente' :
+                       appointment.status === 'scheduled' ? 'Programada' : 'Completada'}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-gray-600">{appointment.time}</span>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
-                    {appointment.status === 'confirmed' ? 'Confirmada' :
-                     appointment.status === 'pending' ? 'Pendiente' : 'Completada'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           <button className="w-full mt-4 py-2 text-sm text-teal-600 hover:text-teal-700 font-medium">
             Ver todas las citas
           </button>
