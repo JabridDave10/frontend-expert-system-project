@@ -40,20 +40,9 @@ const LoginPage: React.FC = () => {
       // Guardar los datos del usuario (el token se maneja en cookies HttpOnly)
       authLogin(response.user);
       
-      // Redirigir según el tipo de usuario
-      switch (response.user.id_role) {
-        case 1: // Paciente
-          navigate('/patient/dashboard');
-          break;
-        case 2: // Doctor
-          navigate('/doctor/dashboard');
-          break;
-        case 3: // Admin
-          navigate('/admin/dashboard');
-          break;
-        default:
-          navigate('/dashboard');
-      }
+      // Login exitoso - mostrar mensaje
+      setSubmitError('');
+      alert(`¡Login exitoso! Bienvenido ${response.user.firstName} ${response.user.lastName}`);
     } catch (error: any) {
       console.error('Login error:', error);
       if (error.response?.data?.detail) {
@@ -215,18 +204,18 @@ const LoginPage: React.FC = () => {
               </a>
             </div>
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
-                isLoading
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white hover:from-cyan-600 hover:to-teal-700'
-              }`}
-            >
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-            </button>
+                {/* Login Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
+                    isLoading
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white hover:from-cyan-600 hover:to-teal-700'
+                  }`}
+                >
+                  {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                </button>
           </form>
 
           {/* Register Link */}
