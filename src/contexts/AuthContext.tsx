@@ -7,6 +7,7 @@ interface AuthContextType {
   login: (user: UserInfo) => void;
   logout: () => void;
   loading: boolean;
+  checkAuth: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,25 +21,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si el usuario está autenticado llamando al endpoint /auth/me
-    const checkAuthStatus = async () => {
-      try {
-        const response = await fetch('/auth/me', {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuthStatus();
+    // Inicializar sin verificar autenticación automáticamente
+    // La verificación se hará solo cuando sea necesario
+    setLoading(false);
   }, []);
 
   const login = (userData: UserInfo) => {
@@ -59,12 +44,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const checkAuth = async (): Promise<boolean> => {
+    try {
+      const response = await fetch('/auth/me', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking auth:', error);
+      return false;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     login,
     logout,
     loading,
+    checkAuth,
   };
 
   return (
