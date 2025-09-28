@@ -9,6 +9,8 @@ export interface RegisterFormData {
   password: string;
   confirmPassword: string;
   userType: UserType;
+  birthDate: string;
+  gender: string;
 }
 
 export interface CreateUserDto {
@@ -19,6 +21,8 @@ export interface CreateUserDto {
   email: string;
   password: string;
   id_role: number;
+  birthDate: string;
+  gender: string;
 }
 
 export interface UserResponseDto {

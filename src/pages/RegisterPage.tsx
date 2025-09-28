@@ -71,7 +71,9 @@ const RegisterPage: React.FC = () => {
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         password: formData.password,
-        id_role: roleMapping[formData.userType]
+        id_role: roleMapping[formData.userType],
+        birthDate: formData.birthDate,
+        gender: formData.gender
       };
       console.log(data);
 
@@ -332,6 +334,50 @@ const RegisterPage: React.FC = () => {
                 </div>
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Birth Date */}
+              <div>
+                <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  Fecha de Nacimiento <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  id="birthDate"
+                  value={formData.birthDate}
+                  onChange={(e) => setFieldValue('birthDate', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
+                    errors.birthDate ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.birthDate && (
+                  <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>
+                )}
+              </div>
+
+              {/* Gender */}
+              <div>
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                  Género <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="gender"
+                  value={formData.gender}
+                  onChange={(e) => setFieldValue('gender', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
+                    errors.gender ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Selecciona tu género</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="otro">Otro</option>
+                </select>
+                {errors.gender && (
+                  <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
                 )}
               </div>
             </div>
