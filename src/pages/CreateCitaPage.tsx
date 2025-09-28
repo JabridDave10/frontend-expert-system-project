@@ -9,11 +9,14 @@ import {
   ArrowLeft,
   Check,
   Phone,
-  CreditCard
+  CreditCard,
+  X
 } from 'lucide-react';
 import { createCita, type CitaCreate } from '../api/citas';
 import { searchPatients, type User as UserType } from '../api/users';
 import { useAuth } from '../contexts/AuthContext';
+import AvailabilityCalendar from '../components/Schedule/AvailabilityCalendar';
+import { type TimeSlot } from '../api/schedules';
 
 const CreateCitaPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +36,11 @@ const CreateCitaPage: React.FC = () => {
     motivo: '',
     estado: 'programada'
   });
+
+  // Estados para el calendario de disponibilidad
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Estados para manejo de errores y carga
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -89,6 +97,40 @@ const CreateCitaPage: React.FC = () => {
     }
   };
 
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+    setSelectedSlot(null); // Reset slot selection
+    setCitaData(prev => ({ ...prev, fecha: date, hora: '' }));
+
+    // Limpiar errores
+    if (errors.fecha) {
+      setErrors(prev => ({ ...prev, fecha: '', hora: '' }));
+    }
+  };
+
+  const handleSlotSelect = (slot: TimeSlot) => {
+    console.log(`🕐 FRONTEND: User selected slot:`, slot);
+    console.log(`✅ FRONTEND: Closing calendar automatically`);
+
+    setSelectedSlot(slot);
+    setShowCalendar(false); // Auto-close calendar after selection
+    setCitaData(prev => ({
+      ...prev,
+      hora: slot.start_time.slice(0, 5) // Format HH:MM
+    }));
+
+    // Limpiar error de hora
+    if (errors.hora) {
+      setErrors(prev => ({ ...prev, hora: '' }));
+    }
+  };
+
+  const toggleCalendar = () => {
+    if (user) {
+      setShowCalendar(!showCalendar);
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -96,12 +138,12 @@ const CreateCitaPage: React.FC = () => {
       newErrors.paciente = 'Debe seleccionar un paciente';
     }
 
-    if (!citaData.fecha) {
-      newErrors.fecha = 'La fecha es requerida';
+    if (!selectedDate) {
+      newErrors.fecha = 'Debe seleccionar una fecha';
     }
 
-    if (!citaData.hora) {
-      newErrors.hora = 'La hora es requerida';
+    if (!selectedSlot) {
+      newErrors.hora = 'Debe seleccionar un horario disponible';
     }
 
     if (!citaData.motivo.trim()) {
@@ -109,11 +151,11 @@ const CreateCitaPage: React.FC = () => {
     }
 
     // Validar que la fecha no sea en el pasado
-    if (citaData.fecha && citaData.hora) {
-      const selectedDateTime = new Date(`${citaData.fecha}T${citaData.hora}`);
-      const now = new Date();
-      if (selectedDateTime <= now) {
-        newErrors.fecha = 'La fecha y hora deben ser futuras';
+    if (selectedDate) {
+      const today = new Date().toISOString().split('T')[0];
+
+      if (selectedDate < today) {
+        newErrors.fecha = 'La fecha debe ser hoy o en el futuro';
       }
     }
 
@@ -125,14 +167,24 @@ const CreateCitaPage: React.FC = () => {
     e.preventDefault();
     setSubmitError('');
 
-    if (!validateForm() || !user || !selectedPatient) {
+    if (!validateForm() || !user || !selectedPatient || !selectedSlot) {
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const fechaHora = new Date(`${citaData.fecha}T${citaData.hora}`).toISOString();
+      // CORREGIR: selectedSlot.start_time ya incluye segundos (16:00:00)
+      // Solo necesitamos agregar milisegundos
+      const fechaHora = `${selectedDate}T${selectedSlot.start_time}.000`;
+
+      console.log('📅 Creating appointment:', {
+        selectedDate,
+        selectedSlot: selectedSlot.start_time,
+        fechaHora,
+        patient: selectedPatient?.id_user,
+        doctor: user.id
+      });
 
       const citaCreateData: CitaCreate = {
         fecha_hora: fechaHora,
@@ -188,8 +240,8 @@ const CreateCitaPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Búsqueda de Paciente */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Buscar Paciente
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                👤 Paso 1: Buscar y Seleccionar Paciente
               </label>
               <div className="relative">
                 <div className="relative">
@@ -294,58 +346,95 @@ const CreateCitaPage: React.FC = () => {
               )}
             </div>
 
-            {/* Fecha y Hora */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="fecha" className="block text-sm font-medium text-gray-700 mb-2">
-                  Fecha
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="date"
-                    id="fecha"
-                    value={citaData.fecha}
-                    onChange={(e) => handleInputChange('fecha', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors ${
-                      errors.fecha ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                  />
-                </div>
-                {errors.fecha && (
-                  <p className="mt-1 text-sm text-red-600">{errors.fecha}</p>
+            {/* Fecha y Hora con Calendar de Disponibilidad */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                📅 Paso 2: Seleccionar Fecha y Hora
+              </label>
+
+              {/* Estado actual */}
+              <div className="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                {!selectedDate && !selectedSlot ? (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 mb-4">Necesitas seleccionar una fecha y hora para la cita</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowCalendar(true)}
+                      className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700"
+                    >
+                      <Calendar className="w-5 h-5 mr-2" />
+                      Ver Horarios Disponibles
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-green-900 mb-2">✅ Cita Programada</h4>
+                        <p className="text-green-800">
+                          <strong>Fecha:</strong> {selectedDate ? new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-ES', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          }) : 'No seleccionada'}
+                        </p>
+                        <p className="text-green-800">
+                          <strong>Hora:</strong> {selectedSlot ? `${selectedSlot.start_time.slice(0, 5)} - ${selectedSlot.end_time.slice(0, 5)}` : 'No seleccionada'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDate('');
+                          setSelectedSlot(null);
+                          setShowCalendar(true);
+                        }}
+                        className="text-green-600 hover:text-green-800 text-sm font-medium"
+                      >
+                        Cambiar
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <label htmlFor="hora" className="block text-sm font-medium text-gray-700 mb-2">
-                  Hora
-                </label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="time"
-                    id="hora"
-                    value={citaData.hora}
-                    onChange={(e) => handleInputChange('hora', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors ${
-                      errors.hora ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    required
+              {/* Errores */}
+              {(errors.fecha || errors.hora) && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  {errors.fecha && <p className="text-sm text-red-600">❌ {errors.fecha}</p>}
+                  {errors.hora && <p className="text-sm text-red-600">❌ {errors.hora}</p>}
+                </div>
+              )}
+
+              {/* Calendario de Disponibilidad */}
+              {showCalendar && user && (
+                <div className="mb-6 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-medium text-gray-900">Selecciona tu horario preferido</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowCalendar(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <AvailabilityCalendar
+                    doctorId={user.id}
+                    selectedDate={selectedDate}
+                    onDateSelect={handleDateSelect}
+                    onSlotSelect={handleSlotSelect}
                   />
                 </div>
-                {errors.hora && (
-                  <p className="mt-1 text-sm text-red-600">{errors.hora}</p>
-                )}
-              </div>
+              )}
             </div>
 
             {/* Motivo */}
             <div>
-              <label htmlFor="motivo" className="block text-sm font-medium text-gray-700 mb-2">
-                Motivo de la Consulta
+              <label htmlFor="motivo" className="block text-sm font-medium text-gray-700 mb-4">
+                📝 Paso 3: Motivo de la Consulta
               </label>
               <div className="relative">
                 <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -395,9 +484,9 @@ const CreateCitaPage: React.FC = () => {
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !selectedPatient}
+                disabled={isSubmitting || !selectedPatient || !selectedSlot}
                 className={`flex-1 px-6 py-3 text-white rounded-lg transition-colors flex items-center justify-center ${
-                  isSubmitting || !selectedPatient
+                  isSubmitting || !selectedPatient || !selectedSlot
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-teal-600 hover:bg-teal-700'
                 }`}

@@ -99,3 +99,35 @@ export const searchPatients = async (searchTerm: string): Promise<User[]> => {
     throw error;
   }
 };
+
+// Obtener usuarios por rol específico
+export const getUsersByRole = async (roleId: number): Promise<User[]> => {
+  try {
+    console.log(`🔍 Obteniendo usuarios con rol: ${roleId}`);
+
+    const response = await axios.get(`${BASE_URL}/users/`, {
+      withCredentials: true,
+    });
+
+    // Filtrar usuarios por rol en el frontend por ahora
+    const filteredUsers = response.data.filter((user: User) => user.id_role === roleId);
+
+    console.log(`✅ Usuarios con rol ${roleId} obtenidos:`, filteredUsers);
+    return filteredUsers;
+  } catch (error) {
+    console.error('❌ Error al obtener usuarios por rol:', error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Error al obtener los usuarios');
+    }
+    throw error;
+  }
+};
+
+// API object para consistencia
+export const usersApi = {
+  getAllUsers,
+  getPatients,
+  getUserById,
+  searchPatients,
+  getUsersByRole
+};

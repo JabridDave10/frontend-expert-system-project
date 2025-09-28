@@ -23,6 +23,7 @@ export interface CitaResponse {
 export const createCita = async (citaData: CitaCreate): Promise<CitaResponse> => {
   try {
     console.log('🚀 Enviando datos de cita:', citaData);
+    console.log('🚀 JSON stringified:', JSON.stringify(citaData, null, 2));
 
     const response = await axios.post(`${BASE_URL}/citas/`, citaData, {
       headers: {
@@ -36,7 +37,14 @@ export const createCita = async (citaData: CitaCreate): Promise<CitaResponse> =>
   } catch (error) {
     console.error('❌ Error al crear cita:', error);
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.detail || 'Error al crear la cita');
+      console.error('❌ Response data:', error.response?.data);
+      console.error('❌ Response status:', error.response?.status);
+      console.error('❌ Response headers:', error.response?.headers);
+
+      const errorMessage = error.response?.data?.detail ||
+                          JSON.stringify(error.response?.data) ||
+                          'Error al crear la cita';
+      throw new Error(errorMessage);
     }
     throw error;
   }
@@ -140,4 +148,14 @@ export const testCitasConnection = async () => {
     }
     throw error;
   }
+};
+
+// API object para consistencia
+export const citasApi = {
+  createCita,
+  getCitas,
+  getCitaById,
+  getCitasByDoctor,
+  getCitasByPaciente,
+  testCitasConnection
 };

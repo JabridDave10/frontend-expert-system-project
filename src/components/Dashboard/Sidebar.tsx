@@ -63,24 +63,31 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       path: '/dashboard'
     },
     {
-      id: 'appointments',
-      label: 'Citas',
-      icon: Calendar,
-      path: '/dashboard/appointments'
-    },
-    {
-      id: 'schedule',
-      label: 'Horarios',
-      icon: Clock,
-      path: '/dashboard/schedule',
-      userTypes: ['doctor', 'admin']
-    },
-    {
       id: 'citas',
       label: 'Mis Citas',
       icon: Calendar,
-      path: '/dashboard/citas',
+      path: '/dashboard/citas'
+    },
+    {
+      id: 'agendar-cita',
+      label: 'Agendar Cita',
+      icon: Plus,
+      path: '/agendar-cita',
+      userTypes: ['patient']
+    },
+    {
+      id: 'crear-cita',
+      label: 'Nueva Cita',
+      icon: Plus,
+      path: '/crear-cita',
       userTypes: ['doctor', 'admin']
+    },
+    {
+      id: 'gestion-horarios',
+      label: 'Gestión de Horarios',
+      icon: Clock,
+      path: '/gestion-horarios',
+      userTypes: ['doctor']
     },
     {
       id: 'patients',

@@ -37,6 +37,22 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/agendar-cita"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/gestion-horarios"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
