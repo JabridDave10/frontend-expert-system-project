@@ -39,6 +39,22 @@ function App() {
             }
           />
           <Route
+            path="/agendar-cita"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/gestion-horarios"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/medical-history"
             element={
               <ProtectedRoute>

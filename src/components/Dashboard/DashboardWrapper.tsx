@@ -7,6 +7,8 @@ import DoctorDashboard from '../../pages/DoctorDashboard';
 import PatientDashboard from '../../pages/PatientDashboard';
 import CitasPage from '../../pages/CitasPage';
 import CreateCitaPage from '../../pages/CreateCitaPage';
+import BookAppointmentPage from '../../pages/BookAppointmentPage';
+import ScheduleManagementPage from '../../pages/ScheduleManagementPage';
 import { useAuth } from '../../contexts/AuthContext';
 
 const DashboardWrapper: React.FC = () => {
@@ -38,6 +40,10 @@ const DashboardWrapper: React.FC = () => {
         return 'Mis Citas';
       case '/crear-cita':
         return 'Nueva Cita';
+      case '/agendar-cita':
+        return 'Agendar Cita';
+      case '/gestion-horarios':
+        return 'Gestión de Horarios';
       case '/dashboard/patients':
         return 'Pacientes';
       case '/dashboard/schedule':
@@ -60,6 +66,10 @@ const DashboardWrapper: React.FC = () => {
         return <CitasPage />;
       case '/crear-cita':
         return <CreateCitaPage />;
+      case '/agendar-cita':
+        return <BookAppointmentPage />;
+      case '/gestion-horarios':
+        return <ScheduleManagementPage />;
       case '/dashboard':
       default:
         // Renderizar el dashboard específico según el tipo de usuario para la ruta principal
