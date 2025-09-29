@@ -4,8 +4,8 @@ import { ArrowLeft, FileText, Pill, Stethoscope, AlertCircle, Check, Bot, Sparkl
 import { useMedicalHistoryForm } from '../hooks/useMedicalHistoryForm';
 import { createMedicalHistory } from '../api/medicalHistory';
 import { diagnosticSymptoms} from '../api/axiosAssistantAI';
-import AIAssistantBubble from '../components/AIAssistantBubble';
-import { type DiagnosticResponse } from '../types/assistantAITypes.ts';
+import AIDiagnosisModal from '../components/AIDiagnosisModal';
+import { type DiagnosticResponse, type DiagnosticRequest } from '../types/assistantAITypes.ts';
 
 const MedicalHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const MedicalHistoryPage: React.FC = () => {
   const [aiResponse, setAiResponse] = useState<DiagnosticResponse | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string>('');
+  const [showAiModal, setShowAiModal] = useState(false);
 
   // Obtener datos de la cita desde la navegación
   const appointmentData = location.state as {
@@ -46,24 +47,35 @@ const MedicalHistoryPage: React.FC = () => {
     setFieldValue(field, value);
   };
 
+  const mapUrgencyLevel = (urgency: string): 'low' | 'medium' | 'high' => {
+    const urgencyLower = urgency.toLowerCase();
+    if (urgencyLower.includes('alta') || urgencyLower.includes('high') || urgencyLower.includes('urgente')) {
+      return 'high';
+    } else if (urgencyLower.includes('media') || urgencyLower.includes('medium') || urgencyLower.includes('moderada')) {
+      return 'medium';
+    }
+    return 'low';
+  };
+
   const handleAIDiagnosis = async () => {
-    if (!formData.symptoms.trim()) {
-      setAiError('Por favor, ingrese los síntomas para obtener un diagnóstico de IA');
-      return;
-    }
-
-    if (!appointmentData?.patientInfo) {
-      setAiError('No se encontró información del paciente');
-      return;
-    }
-
-    setIsAiLoading(true);
-    setAiError('');
-    setAiResponse(null);
-
     try {
-      const diagnosticData: any = {
-        symptoms: formData.symptoms.trim()
+      if (!formData.symptoms.trim()) {
+        setAiError('Por favor, ingrese los síntomas para obtener un diagnóstico de IA');
+        return;
+      }
+
+      if (!appointmentData?.patientInfo) {
+        setAiError('No se encontró información del paciente');
+        return;
+      }
+
+      setIsAiLoading(true);
+      setAiError('');
+      setAiResponse(null);
+      setShowAiModal(true);
+
+      const diagnosticData: DiagnosticRequest = {
+        sintomas: [formData.symptoms.trim()] // Convertir a array como espera el backend
       };
 
       // Añadir edad si está disponible
@@ -71,19 +83,35 @@ const MedicalHistoryPage: React.FC = () => {
         const birthDate = new Date(appointmentData.patientInfo.dateofbirth);
         const today = new Date();
         const age = Math.floor((today.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-        diagnosticData.age = age;
+        diagnosticData.edad = age; // Usar 'edad' en lugar de 'age'
       }
 
       // Añadir género si está disponible
       if (appointmentData.patientInfo?.gender) {
-        diagnosticData.gender = appointmentData.patientInfo.gender;
+        diagnosticData.genero = appointmentData.patientInfo.gender; // Usar 'genero' en lugar de 'gender'
       }
 
+      console.log('🔍 Enviando datos de diagnóstico:', diagnosticData);
       const response = await diagnosticSymptoms(diagnosticData);
+      console.log('✅ Respuesta recibida:', response);
       setAiResponse(response);
     } catch (error: any) {
       console.error('❌ Error al obtener diagnóstico de IA:', error);
-      setAiError(error.response?.data?.detail || error.message || 'Error al obtener diagnóstico de IA');
+      let errorMessage = 'Error al obtener diagnóstico de IA';
+      
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Mensaje específico para API key no configurada
+      if (errorMessage.includes('OPENROUTER_API_KEY no está configurado')) {
+        errorMessage = 'El servicio de IA no está configurado. Contacte al administrador del sistema.';
+      }
+      
+      setAiError(errorMessage);
+      setShowAiModal(false); // Cerrar modal en caso de error
     } finally {
       setIsAiLoading(false);
     }
@@ -262,7 +290,15 @@ const MedicalHistoryPage: React.FC = () => {
               </label>
               <button
                 type="button"
-                onClick={handleAIDiagnosis}
+                onClick={(e) => {
+                  e.preventDefault();
+                  try {
+                    handleAIDiagnosis();
+                  } catch (error) {
+                    console.error('Error en handleAIDiagnosis:', error);
+                    setAiError('Error inesperado al procesar el diagnóstico');
+                  }
+                }}
                 disabled={isAiLoading || !formData.symptoms.trim()}
                 className={`flex items-center space-x-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                   isAiLoading || !formData.symptoms.trim()
@@ -306,19 +342,6 @@ const MedicalHistoryPage: React.FC = () => {
             )}
           </div>
 
-          {/* Respuesta de la IA */}
-          {(isAiLoading || aiResponse || aiError) && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-in slide-in-from-top-2 duration-300">
-              <AIAssistantBubble
-                message={aiResponse?.diagnosis || ''}
-                isLoading={isAiLoading}
-                error={aiError}
-                urgencyLevel={aiResponse?.urgency_level as 'low' | 'medium' | 'high'}
-                possibleConditions={aiResponse?.possible_conditions}
-                recommendations={aiResponse?.recommendations}
-              />
-            </div>
-          )}
 
           {/* Diagnóstico */}
           <div>
@@ -435,6 +458,17 @@ const MedicalHistoryPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Modal de Diagnóstico IA */}
+      <AIDiagnosisModal
+        isOpen={showAiModal}
+        onClose={() => setShowAiModal(false)}
+        onUseDiagnosis={(diagnosis) => setFieldValue('diagnosis', diagnosis)}
+        aiResponse={aiResponse}
+        isLoading={isAiLoading}
+        error={aiError}
+        urgencyLevel={aiResponse?.urgencia ? mapUrgencyLevel(aiResponse.urgencia) : 'low'}
+      />
     </div>
   );
 };

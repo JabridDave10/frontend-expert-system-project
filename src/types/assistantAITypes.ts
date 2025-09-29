@@ -1,12 +1,13 @@
 export interface DiagnosticRequest {
-  symptoms: string;
-  age?: number;
-  gender?: string;
+  sintomas: string[];
+  edad?: number;
+  genero?: string;
 }
 
 export interface DiagnosticResponse {
-  diagnosis: string;
-  possible_conditions: string[];
-  recommendations: string[];
-  urgency_level: string;
+  sintomas: string[];
+  posibles_diagnosticos: string;
+  recomendaciones: string;
+  urgencia: string;
+  timestamp: string;
 }
