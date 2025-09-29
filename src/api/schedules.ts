@@ -1,4 +1,5 @@
 import api from './apiClient';
+import axios from 'axios';
 
 // Types
 export interface DoctorSchedule {
@@ -67,7 +68,7 @@ export const schedulesApi = {
       return response.data;
     } catch (error) {
       console.error('❌ SCHEDULES: Error al crear horario:', error);
-      if (error?.response) {
+      if (axios.isAxiosError(error)) {
         console.error('❌ SCHEDULES: Response data:', error.response?.data);
         console.error('❌ SCHEDULES: Response status:', error.response?.status);
         console.error('❌ SCHEDULES: Response headers:', error.response?.headers);
@@ -93,7 +94,7 @@ export const schedulesApi = {
       return response.data;
     } catch (error) {
       console.error('❌ SCHEDULES: Error al obtener horario:', error);
-      if (error?.response) {
+      if (axios.isAxiosError(error)) {
         console.error('❌ SCHEDULES: Response data:', error.response?.data);
         console.error('❌ SCHEDULES: Response status:', error.response?.status);
         console.error('❌ SCHEDULES: Response headers:', error.response?.headers);
