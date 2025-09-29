@@ -20,7 +20,9 @@ const initialFormData: RegisterFormData = {
   email: '',
   password: '',
   confirmPassword: '',
-  userType: 'patient'
+  userType: 'patient',
+  birthDate: '',
+  gender: ''
 };
 
 export const useRegisterForm = (): UseRegisterFormReturn => {
@@ -97,6 +99,33 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
       newErrors.confirmPassword = 'Debes confirmar tu contraseña';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
+    }
+
+    // Birth Date validation
+    if (!formData.birthDate) {
+      newErrors.birthDate = 'La fecha de nacimiento es obligatoria';
+    } else {
+      const birthDate = new Date(formData.birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      if (age < 0) {
+        newErrors.birthDate = 'La fecha de nacimiento no puede ser futura';
+      } else if (age > 120) {
+        newErrors.birthDate = 'La edad no puede ser mayor a 120 años';
+      }
+    }
+
+    // Gender validation
+    if (!formData.gender) {
+      newErrors.gender = 'El género es obligatorio';
+    } else if (!['masculino', 'femenino', 'otro'].includes(formData.gender.toLowerCase())) {
+      newErrors.gender = 'Selecciona un género válido';
     }
 
     setErrors(newErrors);

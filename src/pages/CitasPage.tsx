@@ -16,6 +16,7 @@ import {
 import { getCitasByDoctor, type CitaResponse } from '../api/citas';
 import { getUserById, type User as UserType } from '../api/users';
 import { useAuth } from '../contexts/AuthContext';
+import MedicalRecordButton from '../components/MedicalRecordButton';
 
 interface CitaWithPatient extends CitaResponse {
   pacienteInfo?: UserType;
@@ -32,42 +33,43 @@ const CitasPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
 
   // Cargar citas del doctor
+  const loadCitas = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      console.log(`Cargando citas para doctor ID: ${user.id}`);
+      const citasData = await getCitasByDoctor(user.id);
+
+      // Obtener información de cada paciente
+      const citasWithPatients = await Promise.all(
+        citasData.map(async (cita) => {
+          try {
+            const pacienteInfo = await getUserById(cita.id_paciente);
+            return { ...cita, pacienteInfo };
+          } catch (error) {
+            console.warn(`No se pudo cargar información del paciente ${cita.id_paciente}:`, error);
+            return cita;
+          }
+        })
+      );
+
+      setCitas(citasWithPatients);
+      setFilteredCitas(citasWithPatients);
+    } catch (error: any) {
+      console.error('Error cargando citas:', error);
+      setError('Error al cargar las citas. Por favor, intenta de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadCitas = async () => {
-      if (!user) return;
-
-      setIsLoading(true);
-      setError('');
-
-      try {
-        console.log(`Cargando citas para doctor ID: ${user.id}`);
-        const citasData = await getCitasByDoctor(user.id);
-
-        // Obtener información de cada paciente
-        const citasWithPatients = await Promise.all(
-          citasData.map(async (cita) => {
-            try {
-              const pacienteInfo = await getUserById(cita.id_paciente);
-              return { ...cita, pacienteInfo };
-            } catch (error) {
-              console.error(`Error obteniendo paciente ${cita.id_paciente}:`, error);
-              return cita;
-            }
-          })
-        );
-
-        setCitas(citasWithPatients);
-        setFilteredCitas(citasWithPatients);
-      } catch (error) {
-        console.error('Error cargando citas:', error);
-        setError(error instanceof Error ? error.message : 'Error al cargar las citas');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadCitas();
   }, [user]);
 
@@ -332,13 +334,30 @@ const CitasPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-teal-600 hover:text-teal-900">
+                        <MedicalRecordButton
+                          appointmentDate={cita.fecha_hora}
+                          status={cita.estado}
+                          appointmentId={cita.id_cita}
+                          patientId={cita.id_paciente}
+                          patientName={cita.pacienteInfo ? `${cita.pacienteInfo.firstName} ${cita.pacienteInfo.lastName}` : undefined}
+                          patientInfo={cita.pacienteInfo ? {
+                            firstName: cita.pacienteInfo.firstName,
+                            lastName: cita.pacienteInfo.lastName,
+                            identification: cita.pacienteInfo.identification,
+                            phone: cita.pacienteInfo.phone,
+                            email: cita.pacienteInfo.email,
+                            dateofbirth: cita.pacienteInfo.dateofbirth,
+                            gender: cita.pacienteInfo.gender
+                          } : undefined}
+                          hasMedicalHistory={false} // TODO: Verificar si ya existe historial médico
+                        />
+                        <button className="text-teal-600 hover:text-teal-900" title="Ver detalles">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-blue-600 hover:text-blue-900" title="Editar cita">
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        <button className="text-red-600 hover:text-red-900" title="Eliminar cita">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -350,6 +369,7 @@ const CitasPage: React.FC = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
