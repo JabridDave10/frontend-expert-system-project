@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { type UserInfo } from '../types/auth';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 interface AuthContextType {
   user: UserInfo | null;
   isAuthenticated: boolean;
@@ -33,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       // Llamar al endpoint de logout para eliminar la cookie HttpOnly
-      await fetch('/auth/logout', {
+      await fetch(`${BASE_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -46,10 +48,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = async (): Promise<boolean> => {
     try {
-      const response = await fetch('/auth/me', {
+      const response = await fetch(`${BASE_URL}/auth/me`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
