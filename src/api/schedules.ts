@@ -56,13 +56,51 @@ export interface AvailableSlots {
 export const schedulesApi = {
   // Doctor Schedules
   createWeeklySchedule: async (doctorId: number, schedule: WeeklySchedule): Promise<DoctorSchedule[]> => {
-    const response = await api.post(`/schedules/doctor/${doctorId}`, schedule);
-    return response.data;
+    try {
+      console.log('🚀 SCHEDULES: Enviando datos de horario:', { doctorId, schedule });
+      console.log('🚀 SCHEDULES: JSON stringified:', JSON.stringify(schedule, null, 2));
+      console.log('🚀 SCHEDULES: Endpoint:', `/schedules/doctor/${doctorId}`);
+
+      const response = await api.post(`/schedules/doctor/${doctorId}`, schedule);
+
+      console.log('✅ SCHEDULES: Horario creado exitosamente:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ SCHEDULES: Error al crear horario:', error);
+      if (error?.response) {
+        console.error('❌ SCHEDULES: Response data:', error.response?.data);
+        console.error('❌ SCHEDULES: Response status:', error.response?.status);
+        console.error('❌ SCHEDULES: Response headers:', error.response?.headers);
+        console.error('❌ SCHEDULES: Request config:', error.config);
+
+        const errorMessage = error.response?.data?.detail ||
+                            JSON.stringify(error.response?.data) ||
+                            'Error al crear el horario';
+        throw new Error(errorMessage);
+      }
+      throw error;
+    }
   },
 
   getDoctorSchedule: async (doctorId: number): Promise<{ doctor_id: number; schedules: DoctorSchedule[] }> => {
-    const response = await api.get(`/schedules/doctor/${doctorId}`);
-    return response.data;
+    try {
+      console.log('🔍 SCHEDULES: Obteniendo horario del doctor:', doctorId);
+      console.log('🔍 SCHEDULES: Endpoint:', `/schedules/doctor/${doctorId}`);
+
+      const response = await api.get(`/schedules/doctor/${doctorId}`);
+
+      console.log('✅ SCHEDULES: Horario obtenido exitosamente:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ SCHEDULES: Error al obtener horario:', error);
+      if (error?.response) {
+        console.error('❌ SCHEDULES: Response data:', error.response?.data);
+        console.error('❌ SCHEDULES: Response status:', error.response?.status);
+        console.error('❌ SCHEDULES: Response headers:', error.response?.headers);
+        console.error('❌ SCHEDULES: Request config:', error.config);
+      }
+      throw error;
+    }
   },
 
   updateSchedule: async (scheduleId: number, schedule: Partial<DoctorSchedule>): Promise<DoctorSchedule> => {
