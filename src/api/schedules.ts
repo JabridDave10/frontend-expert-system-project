@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import api from './apiClient';
 
 // Types
 export interface DoctorSchedule {
@@ -58,64 +56,38 @@ export interface AvailableSlots {
 export const schedulesApi = {
   // Doctor Schedules
   createWeeklySchedule: async (doctorId: number, schedule: WeeklySchedule): Promise<DoctorSchedule[]> => {
-    const response = await axios.post(`${BASE_URL}/schedules/doctor/${doctorId}`, schedule, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
+    const response = await api.post(`/schedules/doctor/${doctorId}`, schedule);
     return response.data;
   },
 
   getDoctorSchedule: async (doctorId: number): Promise<{ doctor_id: number; schedules: DoctorSchedule[] }> => {
-    const response = await axios.get(`${BASE_URL}/schedules/doctor/${doctorId}`, {
-      withCredentials: true,
-    });
+    const response = await api.get(`/schedules/doctor/${doctorId}`);
     return response.data;
   },
 
   updateSchedule: async (scheduleId: number, schedule: Partial<DoctorSchedule>): Promise<DoctorSchedule> => {
-    const response = await axios.put(`${BASE_URL}/schedules/schedule/${scheduleId}`, schedule, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
+    const response = await api.put(`/schedules/schedule/${scheduleId}`, schedule);
     return response.data;
   },
 
   deleteSchedule: async (scheduleId: number): Promise<void> => {
-    await axios.delete(`${BASE_URL}/schedules/schedule/${scheduleId}`, {
-      withCredentials: true,
-    });
+    await api.delete(`/schedules/schedule/${scheduleId}`);
   },
 
   // Doctor Settings
   getDoctorSettings: async (doctorId: number): Promise<DoctorSettings> => {
-    const response = await axios.get(`${BASE_URL}/schedules/doctor/${doctorId}/settings`, {
-      withCredentials: true,
-    });
+    const response = await api.get(`/schedules/doctor/${doctorId}/settings`);
     return response.data;
   },
 
   updateDoctorSettings: async (doctorId: number, settings: Partial<DoctorSettings>): Promise<DoctorSettings> => {
-    const response = await axios.put(`${BASE_URL}/schedules/doctor/${doctorId}/settings`, settings, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
+    const response = await api.put(`/schedules/doctor/${doctorId}/settings`, settings);
     return response.data;
   },
 
   // Availability Exceptions
   createException: async (doctorId: number, exception: Omit<AvailabilityException, 'id' | 'doctor_id' | 'created_at'>): Promise<AvailabilityException> => {
-    const response = await axios.post(`${BASE_URL}/schedules/doctor/${doctorId}/exceptions`, exception, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
+    const response = await api.post(`/schedules/doctor/${doctorId}/exceptions`, exception);
     return response.data;
   },
 
@@ -124,23 +96,17 @@ export const schedulesApi = {
     if (startDate) params.append('start_date', startDate);
     if (endDate) params.append('end_date', endDate);
 
-    const response = await axios.get(`${BASE_URL}/schedules/doctor/${doctorId}/exceptions?${params}`, {
-      withCredentials: true,
-    });
+    const response = await api.get(`/schedules/doctor/${doctorId}/exceptions?${params}`);
     return response.data;
   },
 
   deleteException: async (exceptionId: number): Promise<void> => {
-    await axios.delete(`${BASE_URL}/schedules/exceptions/${exceptionId}`, {
-      withCredentials: true,
-    });
+    await api.delete(`/schedules/exceptions/${exceptionId}`);
   },
 
   // Availability Queries
   getAvailableSlots: async (doctorId: number, date: string): Promise<AvailableSlots> => {
-    const response = await axios.get(`${BASE_URL}/schedules/doctor/${doctorId}/availability?date=${date}`, {
-      withCredentials: true,
-    });
+    const response = await api.get(`/schedules/doctor/${doctorId}/availability?date=${date}`);
     return response.data;
   }
 };
