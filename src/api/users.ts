@@ -9,6 +9,8 @@ export interface User {
   identification: string;
   phone: string;
   email: string;
+  dateofbirth: string;
+  gender: string;
   id_status: boolean;
   id_role: number;
   createdAt: string;
