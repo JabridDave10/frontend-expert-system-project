@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { checkMedicalHistoryExists } from '../api/medicalHistory';
 
 interface MedicalRecordButtonProps {
   appointmentDate: string;
-  status: string;
   appointmentId: number;
   patientId: number;
   patientName?: string;
@@ -23,7 +23,6 @@ interface MedicalRecordButtonProps {
 
 const MedicalRecordButton: React.FC<MedicalRecordButtonProps> = ({
   appointmentDate,
-  status,
   appointmentId,
   patientId,
   patientName,
@@ -32,15 +31,40 @@ const MedicalRecordButton: React.FC<MedicalRecordButtonProps> = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isBlinking, setIsBlinking] = useState(false);
+  const [actualHasMedicalHistory, setActualHasMedicalHistory] = useState(hasMedicalHistory);
+  const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
-    // Para pruebas: siempre habilitar el botón
-    setIsBlinking(false);
-  }, [appointmentDate, status, hasMedicalHistory]);
+    // Verificar si la cita ya tiene historial médico
+    const checkHistory = async () => {
+      if (appointmentId && user) {
+        setIsChecking(true);
+        try {
+          const result = await checkMedicalHistoryExists(appointmentId);
+          setActualHasMedicalHistory(result.has_medical_history);
+        } catch (error) {
+          console.error('Error verificando historial médico:', error);
+          // En caso de error, usar el valor por defecto
+          setActualHasMedicalHistory(hasMedicalHistory);
+        } finally {
+          setIsChecking(false);
+        }
+      }
+    };
+
+    checkHistory();
+  }, [appointmentId, user, hasMedicalHistory]);
 
   const getButtonContent = () => {
-    if (hasMedicalHistory) {
+    if (isChecking) {
+      return {
+        icon: <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />,
+        text: 'Verificando...',
+        className: 'bg-gray-100 text-gray-500 border-gray-200'
+      };
+    }
+
+    if (actualHasMedicalHistory) {
       return {
         icon: <CheckCircle className="w-4 h-4" />,
         text: 'Historial Completado',
@@ -56,7 +80,7 @@ const MedicalRecordButton: React.FC<MedicalRecordButtonProps> = ({
   };
 
   const buttonContent = getButtonContent();
-  const isDisabled = hasMedicalHistory; // Solo deshabilitar si ya hay historial médico
+  const isDisabled = actualHasMedicalHistory || isChecking; // Deshabilitar si ya hay historial médico o está verificando
 
   const handleClick = () => {
     navigate('/medical-history', {
@@ -81,16 +105,15 @@ const MedicalRecordButton: React.FC<MedicalRecordButtonProps> = ({
         ${isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
       `}
       title={
-        hasMedicalHistory
+        isChecking
+          ? 'Verificando si existe historial médico...'
+          : actualHasMedicalHistory
           ? 'El historial médico ya ha sido completado'
           : 'Hacer clic para registrar el historial clínico'
       }
     >
       {buttonContent.icon}
       <span>{buttonContent.text}</span>
-      {isBlinking && (
-        <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-      )}
     </button>
   );
 };

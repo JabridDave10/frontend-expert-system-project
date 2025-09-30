@@ -336,7 +336,6 @@ const CitasPage: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <MedicalRecordButton
                           appointmentDate={cita.fecha_hora}
-                          status={cita.estado}
                           appointmentId={cita.id_cita}
                           patientId={cita.id_paciente}
                           patientName={cita.pacienteInfo ? `${cita.pacienteInfo.firstName} ${cita.pacienteInfo.lastName}` : undefined}
@@ -349,7 +348,7 @@ const CitasPage: React.FC = () => {
                             dateofbirth: cita.pacienteInfo.dateofbirth,
                             gender: cita.pacienteInfo.gender
                           } : undefined}
-                          hasMedicalHistory={false} // TODO: Verificar si ya existe historial médico
+                          // hasMedicalHistory se verifica automáticamente en el componente
                         />
                         <button className="text-teal-600 hover:text-teal-900" title="Ver detalles">
                           <Eye className="w-4 h-4" />

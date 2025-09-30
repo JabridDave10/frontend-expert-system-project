@@ -133,16 +133,21 @@ const MedicalHistoryPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await createMedicalHistory({
+      const medicalHistoryData = {
         id_patient: appointmentData.patientId,
         id_doctor: appointmentData.doctorId,
         id_appointment: appointmentData.appointmentId,
         diagnosis: formData.diagnosis.trim(),
         treatment: formData.treatment.trim(),
-        medication: formData.medication.trim() || undefined,
+        medication: formData.medication.trim() ? formData.medication.trim() : undefined,
         symptoms: formData.symptoms.trim(),
-        notes: formData.notes.trim() || undefined
-      });
+        notes: formData.notes.trim() ? formData.notes.trim() : undefined
+      };
+      
+      console.log('🔍 FRONTEND: Enviando datos de historial médico:', medicalHistoryData);
+      console.log('📋 Datos de la cita:', appointmentData);
+      
+      await createMedicalHistory(medicalHistoryData);
 
       // Success - navegar de vuelta a las citas
       navigate('/dashboard/citas', { 
