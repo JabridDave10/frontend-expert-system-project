@@ -1,9 +1,9 @@
-export type UserType = 'patient' | 'doctor' | 'admin';
+export type UserType = 'player' | 'admin';
 
 export interface RegisterFormData {
   firstName: string;
   lastName: string;
-  identification: string;
+  username: string;
   phone: string;
   email: string;
   password: string;
@@ -16,7 +16,7 @@ export interface RegisterFormData {
 export interface CreateUserDto {
   firstName: string;
   lastName: string;
-  identification: string;
+  username: string;
   phone: string;
   email: string;
   password: string;
@@ -29,7 +29,7 @@ export interface UserResponseDto {
   id: number;
   firstName: string;
   lastName: string;
-  identification: string;
+  username: string;
   phone: string;
   email: string;
   id_status: boolean;

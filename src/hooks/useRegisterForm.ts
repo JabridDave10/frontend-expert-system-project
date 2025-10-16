@@ -15,12 +15,12 @@ interface UseRegisterFormReturn {
 const initialFormData: RegisterFormData = {
   firstName: '',
   lastName: '',
-  identification: '',
+  username: '',
   phone: '',
   email: '',
   password: '',
   confirmPassword: '',
-  userType: 'patient',
+  userType: 'player',
   birthDate: '',
   gender: ''
 };
@@ -63,12 +63,11 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
     }
 
     // Identification validation
-    if (!formData.identification.trim()) {
-      newErrors.identification = 'La identificación es obligatoria';
-    } else if (!/^\d{7,12}$/.test(formData.identification.trim())) {
-      newErrors.identification = 'La identificación debe tener entre 7 y 12 dígitos';
+    if (!formData.username.trim()) {
+      newErrors.username = 'El nombre de usuario es obligatorio';
+    } else if (!/^[a-zA-Z0-9]+$/.test(formData.username.trim())) {
+      newErrors.username = 'El nombre de usuario debe contener solo letras y números';
     }
-
     // Phone validation
     if (!formData.phone.trim()) {
       newErrors.phone = 'El teléfono es obligatorio';

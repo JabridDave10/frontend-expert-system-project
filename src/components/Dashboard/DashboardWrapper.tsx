@@ -20,16 +20,16 @@ const DashboardWrapper: React.FC = () => {
   }
 
   // Mapear id_role a userType (debe coincidir con el mapeo en RegisterPage)
-  const getUserType = (roleId: number): 'patient' | 'doctor' | 'admin' => {
+  const getUserType = (roleId: number): 'player' | 'moderator' | 'admin' => {
     switch (roleId) {
       case 1:
-        return 'patient';
+        return 'player';
       case 2:
-        return 'doctor';
+        return 'moderator';
       case 3:
         return 'admin';
       default:
-        return 'patient';
+        return 'player';
     }
   };
 
@@ -60,7 +60,7 @@ const DashboardWrapper: React.FC = () => {
   };
 
   // Renderizar contenido basado en la ruta
-  const renderContent = (pathname: string, userType: 'patient' | 'doctor' | 'admin') => {
+  const renderContent = (pathname: string, userType: 'player' | 'moderator' | 'admin') => {
     switch (pathname) {
       case '/dashboard/citas':
         return <CitasPage />;
@@ -76,9 +76,9 @@ const DashboardWrapper: React.FC = () => {
         switch (userType) {
           case 'admin':
             return <AdminDashboard />;
-          case 'doctor':
+          case 'moderator':
             return <DoctorDashboard />;
-          case 'patient':
+          case 'player':
             return <PatientDashboard />;
           default:
             return <DashboardPage />; // Fallback al dashboard genérico

@@ -1,17 +1,19 @@
 import React from 'react';
 import {
   Home,
-  Calendar,
+  Gamepad2,
   Users,
-  FileText,
   Settings,
   LogOut,
   User,
-  Briefcase,
+  UserCog,
   Shield,
-  Plus,
+  Sparkles,
   Clock,
-  BarChart3
+  BarChart3,
+  Search,
+  Target,
+  BookOpen
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -20,11 +22,11 @@ interface SidebarItem {
   label: string;
   icon: React.ComponentType<any>;
   path: string;
-  userTypes?: ('patient' | 'doctor' | 'admin')[];
+  userTypes?: ('player' | 'moderator' | 'admin')[];
 }
 
 interface SidebarProps {
-  userType: 'patient' | 'doctor' | 'admin';
+  userType: 'player' | 'moderator' | 'admin';
   userName: string;
   onLogout: () => void;
 }
@@ -35,8 +37,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
 
   const getUserIcon = () => {
     switch (userType) {
-      case 'doctor':
-        return Briefcase;
+      case 'moderator':
+        return UserCog;
       case 'admin':
         return Shield;
       default:
@@ -46,12 +48,12 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
 
   const getUserTypeLabel = () => {
     switch (userType) {
-      case 'doctor':
-        return 'Doctor';
+      case 'moderator':
+        return 'Moderador';
       case 'admin':
         return 'Administrador';
       default:
-        return 'Paciente';
+        return 'Jugador';
     }
   };
 
@@ -63,44 +65,49 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       path: '/dashboard'
     },
     {
-      id: 'citas',
-      label: 'Mis Citas',
-      icon: Calendar,
-      path: '/dashboard/citas'
+      id: 'recommendations',
+      label: 'Recomendaciones',
+      icon: Sparkles,
+      path: '/dashboard/recommendations'
     },
     {
-      id: 'agendar-cita',
-      label: 'Agendar Cita',
-      icon: Plus,
-      path: '/agendar-cita',
-      userTypes: ['patient']
+      id: 'my-games',
+      label: 'Mis Juegos',
+      icon: Gamepad2,
+      path: '/dashboard/my-games'
     },
     {
-      id: 'crear-cita',
-      label: 'Nueva Cita',
-      icon: Plus,
-      path: '/crear-cita',
-      userTypes: ['doctor', 'admin']
+      id: 'discover',
+      label: 'Descubrir',
+      icon: Search,
+      path: '/dashboard/discover'
     },
     {
-      id: 'gestion-horarios',
-      label: 'Gestión de Horarios',
-      icon: Clock,
-      path: '/gestion-horarios',
-      userTypes: ['doctor']
+      id: 'genres',
+      label: 'Explorar Géneros',
+      icon: Target,
+      path: '/dashboard/genres',
+      userTypes: ['player']
     },
     {
-      id: 'patients',
-      label: 'Pacientes',
+      id: 'guides',
+      label: 'Guías y Tips',
+      icon: BookOpen,
+      path: '/dashboard/guides',
+      userTypes: ['player']
+    },
+    {
+      id: 'players',
+      label: 'Jugadores',
       icon: Users,
-      path: '/dashboard/patients',
-      userTypes: ['doctor', 'admin']
+      path: '/dashboard/players',
+      userTypes: ['moderator', 'admin']
     },
     {
-      id: 'doctors',
-      label: 'Doctores',
-      icon: Briefcase,
-      path: '/dashboard/doctors',
+      id: 'moderators',
+      label: 'Moderadores',
+      icon: UserCog,
+      path: '/dashboard/moderators',
       userTypes: ['admin']
     },
     {
@@ -108,13 +115,13 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       label: 'Reportes',
       icon: BarChart3,
       path: '/dashboard/reports',
-      userTypes: ['doctor', 'admin']
+      userTypes: ['moderator', 'admin']
     },
     {
-      id: 'medical-records',
-      label: 'Historial Médico',
-      icon: FileText,
-      path: '/dashboard/medical-records'
+      id: 'history',
+      label: 'Historial',
+      icon: Clock,
+      path: '/dashboard/history'
     },
     {
       id: 'settings',
@@ -135,11 +142,11 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       {/* Logo Section */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-full flex items-center justify-center">
-            <Plus className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+            <Gamepad2 className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-800">MedCitas</h1>
+            <h1 className="text-xl font-bold text-gray-800">GameExpert</h1>
             <p className="text-xs text-gray-500">Dashboard</p>
           </div>
         </div>
@@ -148,8 +155,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       {/* User Info Section */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-            <UserIcon className="w-5 h-5 text-gray-600" />
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+            <UserIcon className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-800 truncate">{userName}</p>
@@ -170,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
               onClick={() => navigate(item.path)}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 ${
                 isActive
-                  ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Briefcase, Shield, Eye, EyeOff, Plus } from 'lucide-react';
+import { User, Shield, Eye, EyeOff, Gamepad2 } from 'lucide-react';
 import { useRegisterForm } from '../hooks/useRegisterForm';
 import { register } from '../api/axiosRegister.ts';
 import { type UserType } from '../types/auth';
@@ -24,16 +24,10 @@ const RegisterPage: React.FC = () => {
 
   const userTypes = [
     {
-      id: 'patient' as UserType,
-      label: 'Paciente',
+      id: 'player' as UserType,
+      label: 'Jugador',
       icon: User,
-      description: 'Regístrate como paciente'
-    },
-    {
-      id: 'doctor' as UserType,
-      label: 'Doctor',
-      icon: Briefcase,
-      description: 'Regístrate como doctor'
+      description: 'Regístrate como jugador'
     },
     {
       id: 'admin' as UserType,
@@ -57,17 +51,16 @@ const RegisterPage: React.FC = () => {
     try {
       console.log(formData);
       // Mapear userType a id_role
-      const roleMapping = {
-        'patient': 1,
-        'doctor': 2,
-        'admin': 3
+      const roleMapping: Record<UserType, number> = {
+        'player': 1,
+        'admin': 2
       };
 
       // Preparar datos para el backend
       const data = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        identification: formData.identification.trim(),
+        username: formData.username.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         password: formData.password,
@@ -105,36 +98,42 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Section - Branding */}
-      <div className="hidden lg:flex lg:w-1/3 bg-gradient-to-br from-cyan-500 to-teal-600 flex-col justify-center items-center px-12">
-        <div className="text-center text-white">
-          {/* Logo */}
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-8 mx-auto">
-            <Plus className="w-10 h-10 text-cyan-600" />
-          </div>
-          
-          {/* Brand Name */}
-          <h1 className="text-5xl font-bold mb-6">MedCitas</h1>
-          
-          {/* Description */}
-          <p className="text-xl leading-relaxed max-w-md">
-            Únete a nuestra plataforma médica y comienza a gestionar citas de manera eficiente y segura.
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+      {/* Background gaming elements */}
+      <div className="absolute inset-0 overflow-hidden opacity-10">
+        <div className="absolute top-20 left-20 text-white text-9xl">◆</div>
+        <div className="absolute bottom-40 right-32 text-white text-7xl">●</div>
+        <div className="absolute top-1/3 right-1/4 text-white text-6xl">▲</div>
+        <div className="absolute bottom-20 left-1/3 text-white text-8xl">■</div>
       </div>
 
-      {/* Right Section - Register Form */}
-      <div className="w-full lg:w-2/3 flex flex-col justify-center px-8 py-12 bg-white">
-        <div className="max-w-2xl mx-auto w-full">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Crear Cuenta</h2>
-            <p className="text-gray-600">Completa tus datos para registrarte</p>
+      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 relative z-10">
+        {/* Left Panel - Branding */}
+        <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl p-12 flex flex-col items-center justify-center text-white shadow-2xl">
+          <div className="bg-white rounded-full p-8 mb-8 shadow-lg">
+            <Gamepad2 className="w-24 h-24 text-purple-600" />
           </div>
+          
+          <h1 className="text-5xl font-bold mb-4 text-center">GameExpert</h1>
+          
+          <p className="text-xl text-center mb-8 text-purple-100">
+            Únete a nuestra plataforma y descubre videojuegos personalizados según tus gustos
+          </p>
+          
+          <div className="space-y-4 text-center">
+            <p className="text-lg">🎮 Recomendaciones inteligentes</p>
+            <p className="text-lg">🎯 Sistema experto avanzado</p>
+            <p className="text-lg">⭐ Comunidad de jugadores</p>
+          </div>
+        </div>
+
+        {/* Right Panel - Register Form */}
+        <div className="bg-white rounded-3xl p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <h2 className="text-4xl font-bold text-gray-800 mb-2">Crear Cuenta</h2>
+          <p className="text-gray-600 mb-6">Completa tus datos para registrarte</p>
 
           {/* User Type Selection */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-3 mb-6">
             {userTypes.map((userType) => {
               const Icon = userType.icon;
               const isSelected = formData.userType === userType.id;
@@ -144,14 +143,14 @@ const RegisterPage: React.FC = () => {
                   key={userType.id}
                   type="button"
                   onClick={() => setFieldValue('userType', userType.id)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                  className={`py-3 rounded-xl flex flex-col items-center gap-2 transition-all ${
                     isSelected
-                      ? 'bg-cyan-500 border-cyan-500 text-white'
-                      : 'bg-white border-gray-200 text-gray-700 hover:border-cyan-300'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <Icon className={`w-6 h-6 mx-auto mb-2 ${isSelected ? 'text-white' : 'text-gray-600'}`} />
-                  <span className="text-sm font-medium">{userType.label}</span>
+                  <Icon className="w-5 h-5" />
+                  <span className="font-semibold text-sm">{userType.label}</span>
                 </button>
               );
             })}
@@ -170,42 +169,37 @@ const RegisterPage: React.FC = () => {
             </div>
           )}
 
-          {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Name */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Nombre y Apellido */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Nombre <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="firstName"
                   value={formData.firstName}
                   onChange={(e) => setFieldValue('firstName', e.target.value)}
                   placeholder="Tu nombre"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                    errors.firstName ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                    errors.firstName ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
                 {errors.firstName && (
                   <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
                 )}
               </div>
-
-              {/* Last Name */}
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Apellido <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="lastName"
                   value={formData.lastName}
                   onChange={(e) => setFieldValue('lastName', e.target.value)}
                   placeholder="Tu apellido"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                    errors.lastName ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                    errors.lastName ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
                 {errors.lastName && (
@@ -214,40 +208,36 @@ const RegisterPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Email */}
+            {/* Email y Teléfono */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Correo Electrónico <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
-                  id="email"
                   value={formData.email}
                   onChange={(e) => setFieldValue('email', e.target.value)}
                   placeholder="ejemplo@correo.com"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                    errors.email ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email}</p>
                 )}
               </div>
-
-              {/* Phone */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Teléfono <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
-                  id="phone"
                   value={formData.phone}
                   onChange={(e) => setFieldValue('phone', e.target.value)}
                   placeholder="+57 300 123 4567"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                    errors.phone ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
                 {errors.phone && (
@@ -256,80 +246,75 @@ const RegisterPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Identification */}
+            {/* Username */}
             <div>
-              <label htmlFor="identification" className="block text-sm font-medium text-gray-700 mb-2">
-                Identificación <span className="text-red-500">*</span>
+              <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                Nombre de Usuario <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                id="identification"
-                value={formData.identification}
-                onChange={(e) => setFieldValue('identification', e.target.value)}
-                placeholder="1234567890"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                  errors.identification ? 'border-red-500' : 'border-gray-300'
+                value={formData.username}
+                onChange={(e) => setFieldValue('username', e.target.value)}
+                placeholder="Elige tu nombre de usuario"
+                className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                  errors.username ? 'border-red-500' : 'border-gray-200'
                 }`}
               />
-              {errors.identification && (
-                <p className="mt-1 text-sm text-red-600">{errors.identification}</p>
+              {errors.username && (
+                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Password */}
+            {/* Contraseña y Confirmar */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Contraseña <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    id="password"
                     value={formData.password}
                     onChange={(e) => setFieldValue('password', e.target.value)}
-                    placeholder="********"
+                    placeholder="••••••••"
                     maxLength={72}
-                    className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                      errors.password ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                      errors.password ? 'border-red-500' : 'border-gray-200'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-600">{errors.password}</p>
                 )}
               </div>
-
-              {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Confirmar Contraseña <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
-                    id="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={(e) => setFieldValue('confirmPassword', e.target.value)}
-                    placeholder="********"
+                    placeholder="••••••••"
                     maxLength={72}
-                    className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                      errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                      errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
@@ -338,43 +323,40 @@ const RegisterPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Birth Date */}
+            {/* Fecha de Nacimiento y Género */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Fecha de Nacimiento <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
-                  id="birthDate"
                   value={formData.birthDate}
                   onChange={(e) => setFieldValue('birthDate', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                    errors.birthDate ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                    errors.birthDate ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
                 {errors.birthDate && (
                   <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>
                 )}
               </div>
-
-              {/* Gender */}
               <div>
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
                   Género <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="gender"
                   value={formData.gender}
                   onChange={(e) => setFieldValue('gender', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors ${
-                    errors.gender ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 focus:border-purple-500 focus:outline-none transition-colors text-sm ${
+                    errors.gender ? 'border-red-500' : 'border-gray-200'
                   }`}
                 >
                   <option value="">Selecciona tu género</option>
                   <option value="masculino">Masculino</option>
                   <option value="femenino">Femenino</option>
                   <option value="otro">Otro</option>
+                  <option value="prefiero-no-decir">Prefiero no decir</option>
                 </select>
                 {errors.gender && (
                   <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
@@ -382,28 +364,30 @@ const RegisterPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Register Button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-cyan-600 hover:to-teal-700 transition-all duration-200 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl mt-4 ${
+                isLoading
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
+              }`}
             >
               {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
             </button>
           </form>
 
           {/* Login Link */}
-          <div className="text-center mt-8">
-            <p className="text-gray-600">
-              ¿Ya tienes cuenta?{' '}
-              <button 
-                onClick={() => navigate('/login')}
-                className="text-cyan-600 hover:text-cyan-700 font-medium underline"
-              >
-                Inicia sesión aquí
-              </button>
-            </p>
-          </div>
+          <p className="text-center mt-6 text-gray-600 text-sm">
+            ¿Ya tienes cuenta?{' '}
+            <button 
+              onClick={() => navigate('/login')}
+              className="text-purple-600 hover:text-purple-700 font-bold"
+            >
+              Inicia sesión aquí
+            </button>
+          </p>
         </div>
       </div>
     </div>

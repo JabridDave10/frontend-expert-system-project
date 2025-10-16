@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  userType: 'patient' | 'doctor' | 'admin';
+  userType: 'player' | 'moderator' | 'admin';
   userName: string;
   onLogout: () => void;
   pageTitle?: string;
