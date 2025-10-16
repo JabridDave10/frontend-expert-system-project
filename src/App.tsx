@@ -5,6 +5,8 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardWrapper from './components/Dashboard/DashboardWrapper'
 import MedicalHistoryPage from './pages/MedicalHistoryPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import ExplorePage from './pages/ExplorePage'
+import DiagnosePage from './pages/DiagnosePage'
 
 function App() {
   return (
@@ -16,6 +18,30 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/discover"
+            element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/recommendations"
             element={
               <ProtectedRoute>
                 <DashboardWrapper />
@@ -59,6 +85,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <MedicalHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/explore"
+            element={
+              <ProtectedRoute>
+                <ExplorePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/diagnose"
+            element={
+              <ProtectedRoute>
+                <DiagnosePage />
               </ProtectedRoute>
             }
           />

@@ -68,7 +68,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       id: 'recommendations',
       label: 'Recomendaciones',
       icon: Sparkles,
-      path: '/dashboard/recommendations'
+      path: '/dashboard/recommendations',
+      userTypes: ['player']
     },
     {
       id: 'my-games',
@@ -80,7 +81,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       id: 'discover',
       label: 'Descubrir',
       icon: Search,
-      path: '/dashboard/discover'
+      path: '/dashboard/discover',
+      userTypes: ['player']
     },
     {
       id: 'genres',

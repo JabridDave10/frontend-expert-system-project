@@ -10,6 +10,8 @@ import CreateCitaPage from '../../pages/CreateCitaPage';
 import BookAppointmentPage from '../../pages/BookAppointmentPage';
 import ScheduleManagementPage from '../../pages/ScheduleManagementPage';
 import { useAuth } from '../../contexts/AuthContext';
+import ExplorePage from '../../pages/ExplorePage';
+import DiagnosePage from '../../pages/DiagnosePage';
 
 const DashboardWrapper: React.FC = () => {
   const { user, logout } = useAuth();
@@ -54,6 +56,10 @@ const DashboardWrapper: React.FC = () => {
         return 'Doctores';
       case '/dashboard/settings':
         return 'Configuración';
+      case '/dashboard/discover':
+        return 'Descubrir';
+      case '/dashboard/recommendations':
+        return 'Recomendaciones (Diagnóstico)';
       default:
         return 'Dashboard';
     }
@@ -70,6 +76,10 @@ const DashboardWrapper: React.FC = () => {
         return <BookAppointmentPage />;
       case '/gestion-horarios':
         return <ScheduleManagementPage />;
+      case '/dashboard/discover':
+        return <ExplorePage />;
+      case '/dashboard/recommendations':
+        return <DiagnosePage />;
       case '/dashboard':
       default:
         // Renderizar el dashboard específico según el tipo de usuario para la ruta principal
