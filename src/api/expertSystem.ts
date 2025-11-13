@@ -61,3 +61,23 @@ export function downloadCatalog(params: {
   const url = buildUrl('/expert-system/download-catalog', params);
   window.open(url, '_blank');
 }
+
+/**
+ * NUEVO SISTEMA EXPERTO - Motor de Inferencia
+ */
+
+import type { InferenceRequest, InferenceResponse } from '../types/expertSystem';
+
+export async function runInference(payload: InferenceRequest): Promise<InferenceResponse> {
+  const url = buildUrl('/api/expert-system/infer');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Error al ejecutar inferencia');
+  }
+  return res.json();
+}

@@ -12,6 +12,7 @@ import ScheduleManagementPage from '../../pages/ScheduleManagementPage';
 import { useAuth } from '../../contexts/AuthContext';
 import ExplorePage from '../../pages/ExplorePage';
 import DiagnosePage from '../../pages/DiagnosePage';
+import ExpertSystemPage from '../../pages/ExpertSystemPage';
 
 const DashboardWrapper: React.FC = () => {
   const { user, logout } = useAuth();
@@ -58,8 +59,10 @@ const DashboardWrapper: React.FC = () => {
         return 'Configuración';
       case '/dashboard/discover':
         return 'Descubrir';
+      case '/dashboard/expert-system':
+        return 'Sistema Experto con IA';
       case '/dashboard/recommendations':
-        return 'Recomendaciones (Diagnóstico)';
+        return 'Diagnóstico Rápido';
       default:
         return 'Dashboard';
     }
@@ -78,6 +81,8 @@ const DashboardWrapper: React.FC = () => {
         return <ScheduleManagementPage />;
       case '/dashboard/discover':
         return <ExplorePage />;
+      case '/dashboard/expert-system':
+        return <ExpertSystemPage />;
       case '/dashboard/recommendations':
         return <DiagnosePage />;
       case '/dashboard':

@@ -7,6 +7,7 @@ import MedicalHistoryPage from './pages/MedicalHistoryPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ExplorePage from './pages/ExplorePage'
 import DiagnosePage from './pages/DiagnosePage'
+import ExpertSystemPage from './pages/ExpertSystemPage'
 
 function App() {
   return (
@@ -101,6 +102,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DiagnosePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/expert-system"
+            element={
+              <ProtectedRoute>
+                <ExpertSystemPage />
               </ProtectedRoute>
             }
           />

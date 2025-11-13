@@ -13,7 +13,8 @@ import {
   BarChart3,
   Search,
   Target,
-  BookOpen
+  BookOpen,
+  Brain
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -65,8 +66,15 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       path: '/dashboard'
     },
     {
+      id: 'expert-system',
+      label: 'Sistema Experto IA',
+      icon: Brain,
+      path: '/dashboard/expert-system',
+      userTypes: ['player']
+    },
+    {
       id: 'recommendations',
-      label: 'Recomendaciones',
+      label: 'Diagnóstico Rápido',
       icon: Sparkles,
       path: '/dashboard/recommendations',
       userTypes: ['player']
