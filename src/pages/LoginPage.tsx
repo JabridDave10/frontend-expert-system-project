@@ -27,31 +27,39 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError('');
+    console.log('[LoginPage] Iniciando login...');
 
     if (!validateForm()) {
+      console.log('[LoginPage] Validacion de formulario fallo');
       return;
     }
 
     setIsLoading(true);
+    console.log('[LoginPage] Enviando datos:', { email: formData.email });
 
     try {
+      console.log('[LoginPage] Llamando a login()...');
       const response = await login(formData);
+      console.log('[LoginPage] Respuesta del login:', response);
 
       // Guardar los datos del usuario (el token se maneja en cookies HttpOnly)
+      console.log('[LoginPage] Llamando a authLogin() con usuario:', response.user);
       authLogin(response.user);
 
       // Login exitoso - redirigir al dashboard específico
       setSubmitError('');
+      console.log('[LoginPage] Login exitoso, redirigiendo a /dashboard');
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('[LoginPage] Login error:', error);
       if (error.response?.data?.detail) {
         setSubmitError(error.response.data.detail);
       } else {
-        setSubmitError('Error al iniciar sesión. Verifica tus credenciales.');
+        setSubmitError('Error al iniciar sesion. Verifica tus credenciales.');
       }
     } finally {
       setIsLoading(false);
+      console.log('[LoginPage] Loading establecido en false');
     }
   };
 
