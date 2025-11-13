@@ -17,7 +17,9 @@ import AdminMainPage from '../../pages/AdminMainPage';
 import AdminGamesPage from '../../pages/AdminGamesPage';
 import AdminRulesPage from '../../pages/AdminRulesPage';
 import AdminGameFormPage from '../../pages/AdminGameFormPage';
+import AdminRuleFormPage from '../../pages/AdminRuleFormPage';
 import AdminRuleDetailPage from '../../pages/AdminRuleDetailPage';
+import GameRulesPage from '../../pages/GameRulesPage';
 
 const DashboardWrapper: React.FC = () => {
   const { user, logout } = useAuth();
@@ -72,6 +74,8 @@ const DashboardWrapper: React.FC = () => {
         return 'Gestión de Juegos';
       case '/dashboard/admin/rules':
         return 'Gestión de Reglas';
+      case '/dashboard/admin/game-rules':
+        return 'Asignar Reglas a Juegos';
       case '/dashboard/admin/games/new':
         return 'Nuevo Juego';
       case '/dashboard/admin/rules/new':
@@ -81,6 +85,10 @@ const DashboardWrapper: React.FC = () => {
           return 'Editar Juego';
         }
         if (pathname.startsWith('/dashboard/admin/rules/')) {
+          const ruleId = pathname.split('/').pop();
+          if (ruleId && !isNaN(Number(ruleId))) {
+            return 'Editar Regla';
+          }
           return 'Detalle de Regla';
         }
         return 'Dashboard';
@@ -110,10 +118,12 @@ const DashboardWrapper: React.FC = () => {
         return <AdminGamesPage />;
       case '/dashboard/admin/rules':
         return <AdminRulesPage />;
+      case '/dashboard/admin/game-rules':
+        return <GameRulesPage />;
       case '/dashboard/admin/games/new':
         return <AdminGameFormPage />;
       case '/dashboard/admin/rules/new':
-        return <div>Nueva Regla (por implementar)</div>;
+        return <AdminRuleFormPage />;
       case '/dashboard':
       default:
         // Check for dynamic routes
@@ -121,6 +131,11 @@ const DashboardWrapper: React.FC = () => {
           return <AdminGameFormPage />;
         }
         if (pathname.startsWith('/dashboard/admin/rules/') && pathname !== '/dashboard/admin/rules/new') {
+          // Check if it's an edit route (numeric ID)
+          const ruleId = pathname.split('/').pop();
+          if (ruleId && !isNaN(Number(ruleId))) {
+            return <AdminRuleFormPage />;
+          }
           return <AdminRuleDetailPage />;
         }
         // Renderizar el dashboard específico según el tipo de usuario para la ruta principal

@@ -42,7 +42,7 @@ const AdminMainPage: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link
             to="/dashboard/admin/games"
             className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transform hover:scale-105 transition-all group"
@@ -103,6 +103,31 @@ const AdminMainPage: React.FC = () => {
                 </div>
               </div>
             )}
+          </Link>
+
+          <Link
+            to="/dashboard/admin/game-rules"
+            className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transform hover:scale-105 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white text-3xl group-hover:scale-110 transition-transform">
+                🔗
+              </div>
+              <svg
+                className="w-8 h-8 text-gray-400 group-hover:text-green-600 transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Asignar Reglas</h2>
+            <p className="text-gray-600 mb-4">Vincula reglas específicas a juegos</p>
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-lg font-bold text-green-600">Vista Intuitiva</p>
+              <p className="text-sm text-gray-500">Gestión simplificada</p>
+            </div>
           </Link>
         </div>
 
