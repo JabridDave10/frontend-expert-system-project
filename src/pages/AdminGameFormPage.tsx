@@ -21,9 +21,16 @@ const AdminGameFormPage: React.FC = () => {
     background_image: '',
   })
 
-  const [genres, setGenres] = useState<string>('')
-  const [platforms, setPlatforms] = useState<string>('')
-  const [tags, setTags] = useState<string>('')
+  // Arrays para géneros, plataformas y tags
+  const [genres, setGenres] = useState<Array<{ id?: number; name: string; slug: string }>>([])
+  const [platforms, setPlatforms] = useState<Array<{ platform: { id?: number; name: string; slug: string } }>>([])
+  const [tags, setTags] = useState<Array<{ id?: number; name: string; slug: string }>>([])
+
+  // Estados para nuevos items
+  const [newGenre, setNewGenre] = useState({ name: '', slug: '' })
+  const [newPlatform, setNewPlatform] = useState({ name: '', slug: '' })
+  const [newTag, setNewTag] = useState({ name: '', slug: '' })
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -53,15 +60,15 @@ const AdminGameFormPage: React.FC = () => {
         background_image: game.background_image || '',
       })
 
-      // Parse JSON arrays to string for textarea
+      // Parse JSON arrays directly to state
       if (game.genres_json) {
-        setGenres(JSON.stringify(game.genres_json, null, 2))
+        setGenres(game.genres_json)
       }
       if (game.parent_platforms_json) {
-        setPlatforms(JSON.stringify(game.parent_platforms_json, null, 2))
+        setPlatforms(game.parent_platforms_json)
       }
       if (game.tags_json) {
-        setTags(JSON.stringify(game.tags_json, null, 2))
+        setTags(game.tags_json)
       }
 
       console.log('Form data set successfully')
@@ -77,49 +84,14 @@ const AdminGameFormPage: React.FC = () => {
     setError('')
 
     try {
-      // Parse JSON fields
-      let genresJson = null
-      let platformsJson = null
-      let tagsJson = null
-
-      if (genres.trim()) {
-        try {
-          genresJson = JSON.parse(genres)
-        } catch {
-          setError('El formato JSON de géneros es inválido')
-          setLoading(false)
-          return
-        }
-      }
-
-      if (platforms.trim()) {
-        try {
-          platformsJson = JSON.parse(platforms)
-        } catch {
-          setError('El formato JSON de plataformas es inválido')
-          setLoading(false)
-          return
-        }
-      }
-
-      if (tags.trim()) {
-        try {
-          tagsJson = JSON.parse(tags)
-        } catch {
-          setError('El formato JSON de tags es inválido')
-          setLoading(false)
-          return
-        }
-      }
-
       const payload = {
         ...formData,
         metacritic: formData.metacritic ? parseInt(formData.metacritic) : null,
         rating: formData.rating ? parseFloat(formData.rating) : null,
         playtime: formData.playtime ? parseInt(formData.playtime) : null,
-        genres_json: genresJson,
-        parent_platforms_json: platformsJson,
-        tags_json: tagsJson,
+        genres_json: genres.length > 0 ? genres : null,
+        parent_platforms_json: platforms.length > 0 ? platforms : null,
+        tags_json: tags.length > 0 ? tags : null,
       }
 
       const url = isEditMode
@@ -153,6 +125,42 @@ const AdminGameFormPage: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     })
+  }
+
+  // Funciones para manejar géneros
+  const addGenre = () => {
+    if (newGenre.name && newGenre.slug) {
+      setGenres([...genres, newGenre])
+      setNewGenre({ name: '', slug: '' })
+    }
+  }
+
+  const removeGenre = (index: number) => {
+    setGenres(genres.filter((_, i) => i !== index))
+  }
+
+  // Funciones para manejar plataformas
+  const addPlatform = () => {
+    if (newPlatform.name && newPlatform.slug) {
+      setPlatforms([...platforms, { platform: newPlatform }])
+      setNewPlatform({ name: '', slug: '' })
+    }
+  }
+
+  const removePlatform = (index: number) => {
+    setPlatforms(platforms.filter((_, i) => i !== index))
+  }
+
+  // Funciones para manejar tags
+  const addTag = () => {
+    if (newTag.name && newTag.slug) {
+      setTags([...tags, newTag])
+      setNewTag({ name: '', slug: '' })
+    }
+  }
+
+  const removeTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index))
   }
 
   return (
@@ -296,52 +304,142 @@ const AdminGameFormPage: React.FC = () => {
             />
           </div>
 
+          {/* Géneros */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Géneros (JSON)
-              <span className="text-xs text-gray-500 ml-2">
-                Ejemplo: [{`{"id": 4, "name": "Action", "slug": "action"}`}]
-              </span>
-            </label>
-            <textarea
-              value={genres}
-              onChange={(e) => setGenres(e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 font-mono text-sm"
-              placeholder='[{"id": 4, "name": "Action", "slug": "action"}]'
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-3">Géneros</label>
+            <div className="space-y-3">
+              {/* Lista de géneros agregados */}
+              {genres.map((genre, index) => (
+                <div key={index} className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg">
+                  <span className="flex-1 font-medium">{genre.name}</span>
+                  <span className="text-sm text-gray-500">({genre.slug})</span>
+                  <button
+                    type="button"
+                    onClick={() => removeGenre(index)}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              {/* Formulario para agregar nuevo género */}
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Nombre (ej: Action)"
+                  value={newGenre.name}
+                  onChange={(e) => setNewGenre({ ...newGenre, name: e.target.value })}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Slug (ej: action)"
+                  value={newGenre.slug}
+                  onChange={(e) => setNewGenre({ ...newGenre, slug: e.target.value })}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={addGenre}
+                className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                + Agregar Género
+              </button>
+            </div>
           </div>
 
+          {/* Plataformas */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Plataformas (JSON)
-              <span className="text-xs text-gray-500 ml-2">
-                Ejemplo: [{`{"platform": {"id": 1, "name": "PC", "slug": "pc"}}`}]
-              </span>
-            </label>
-            <textarea
-              value={platforms}
-              onChange={(e) => setPlatforms(e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 font-mono text-sm"
-              placeholder='[{"platform": {"id": 1, "name": "PC", "slug": "pc"}}]'
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-3">Plataformas</label>
+            <div className="space-y-3">
+              {/* Lista de plataformas agregadas */}
+              {platforms.map((platform, index) => (
+                <div key={index} className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                  <span className="flex-1 font-medium">{platform.platform.name}</span>
+                  <span className="text-sm text-gray-500">({platform.platform.slug})</span>
+                  <button
+                    type="button"
+                    onClick={() => removePlatform(index)}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              {/* Formulario para agregar nueva plataforma */}
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Nombre (ej: PC)"
+                  value={newPlatform.name}
+                  onChange={(e) => setNewPlatform({ ...newPlatform, name: e.target.value })}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Slug (ej: pc)"
+                  value={newPlatform.slug}
+                  onChange={(e) => setNewPlatform({ ...newPlatform, slug: e.target.value })}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={addPlatform}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                + Agregar Plataforma
+              </button>
+            </div>
           </div>
 
+          {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags (JSON)
-              <span className="text-xs text-gray-500 ml-2">
-                Ejemplo: [{`{"id": 31, "name": "Singleplayer", "slug": "singleplayer"}`}]
-              </span>
-            </label>
-            <textarea
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 font-mono text-sm"
-              placeholder='[{"id": 31, "name": "Singleplayer", "slug": "singleplayer"}]'
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-3">Tags</label>
+            <div className="space-y-3">
+              {/* Lista de tags agregados */}
+              {tags.map((tag, index) => (
+                <div key={index} className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
+                  <span className="flex-1 font-medium">{tag.name}</span>
+                  <span className="text-sm text-gray-500">({tag.slug})</span>
+                  <button
+                    type="button"
+                    onClick={() => removeTag(index)}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              {/* Formulario para agregar nuevo tag */}
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Nombre (ej: Singleplayer)"
+                  value={newTag.name}
+                  onChange={(e) => setNewTag({ ...newTag, name: e.target.value })}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Slug (ej: singleplayer)"
+                  value={newTag.slug}
+                  onChange={(e) => setNewTag({ ...newTag, slug: e.target.value })}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={addTag}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                + Agregar Tag
+              </button>
+            </div>
           </div>
 
           <div className="flex space-x-4 pt-4">
