@@ -1,195 +1,148 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { getDashboardStats, getTodayAppointments, type DashboardStats as DashboardStatsType, type TodayAppointment } from '../api/citas';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Calendar,
+  Gamepad2,
+  Star,
   Users,
-  Clock,
-  FileText,
-  Stethoscope,
-  UserCheck,
+  Activity,
+  Brain,
+  Shield,
   TrendingUp,
-  Plus,
-  Phone
+  Target,
+  ChevronRight
 } from 'lucide-react';
 
-interface DoctorStats {
-  title: string;
+interface ModeratorStats {
+  label: string;
   value: string;
-  change: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   color: string;
+  sublabel: string;
 }
 
-
+interface QuickAction {
+  title: string;
+  subtitle: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  color: string;
+  path: string;
+}
 
 const DoctorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [successMessage, setSuccessMessage] = useState<string>('');
-  const [dashboardStats, setDashboardStats] = useState<DashboardStatsType | null>(null);
-  const [todayAppointments, setTodayAppointments] = useState<TodayAppointment[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Cargar estadísticas del dashboard y citas de hoy
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        const [stats, appointments] = await Promise.all([
-          getDashboardStats(),
-          getTodayAppointments()
-        ]);
-        setDashboardStats(stats);
-        setTodayAppointments(appointments);
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const stats: ModeratorStats[] = [
+    { label: 'Total Juegos', value: '4,000', icon: Gamepad2, color: 'bg-blue-500', sublabel: 'En catálogo' },
+    { label: 'Usuarios Activos', value: '1,247', icon: Users, color: 'bg-green-500', sublabel: 'Este mes' },
+    { label: 'Recomendaciones', value: '8,456', icon: Star, color: 'bg-purple-500', sublabel: 'Generadas' },
+    { label: 'Consultas IA', value: '2,134', icon: Brain, color: 'bg-orange-500', sublabel: 'Este mes' }
+  ];
 
-    loadDashboardData();
-  }, []);
-
-  // Manejar mensaje de éxito desde la navegación
-  useEffect(() => {
-    if (location.state?.successMessage) {
-      setSuccessMessage(location.state.successMessage);
-      // Limpiar el estado después de mostrarlo
-      window.history.replaceState({}, document.title);
-      // Ocultar mensaje después de 5 segundos
-      setTimeout(() => setSuccessMessage(''), 5000);
-    }
-  }, [location.state]);
-  const doctorStats: DoctorStats[] = [
+  const quickActions: QuickAction[] = [
     {
-      title: 'Citas Hoy',
-      value: loading ? '...' : (dashboardStats?.today_appointments.toString() || '0'),
-      change: '+12.5%',
-      icon: Calendar,
-      color: 'bg-blue-500'
+      title: 'Sistema Experto',
+      subtitle: 'Consultar recomendaciones IA',
+      icon: Brain,
+      color: 'from-blue-500 to-purple-600',
+      path: '/dashboard/expert-system'
     },
     {
-      title: 'Pacientes Activos',
-      value: loading ? '...' : (dashboardStats?.active_patients.toString() || '0'),
-      change: '+8.3%',
-      icon: Users,
-      color: 'bg-green-500'
+      title: 'Diagnóstico Rápido',
+      subtitle: 'Recomendaciones rápidas',
+      icon: Target,
+      color: 'from-green-500 to-teal-600',
+      path: '/dashboard/recommendations'
     },
     {
-      title: 'Consultas Pendientes',
-      value: loading ? '...' : (dashboardStats?.pending_appointments.toString() || '0'),
-      change: '-15.2%',
-      icon: Clock,
-      color: 'bg-yellow-500'
+      title: 'Descubrir Juegos',
+      subtitle: 'Explorar catálogo completo',
+      icon: Gamepad2,
+      color: 'from-purple-500 to-pink-600',
+      path: '/dashboard/discover'
+    },
+    {
+      title: 'Actividad Usuarios',
+      subtitle: 'Ver estadísticas y reportes',
+      icon: Activity,
+      color: 'from-orange-500 to-red-600',
+      path: '/dashboard/activity'
     }
   ];
 
-  // Función para formatear la hora desde datetime
-  const formatTime = (dateTimeString: string) => {
-    try {
-      const date = new Date(dateTimeString);
-      return date.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-    } catch {
-      return 'N/A';
-    }
-  };
-
-
-  const quickDoctorActions = [
+  const recentActivity = [
     {
-      title: 'Nueva Cita',
-      description: 'Programar cita para paciente',
-      icon: Calendar,
-      color: 'bg-blue-500 hover:bg-blue-600',
-      onClick: () => navigate('/crear-cita')
+      id: '1',
+      user: 'Juan Pérez',
+      action: 'Consultó sistema experto',
+      detail: 'Género: RPG, Calidad: Alta',
+      time: 'Hace 5 min',
+      icon: Brain,
+      color: 'bg-blue-100 text-blue-700'
     },
     {
-      title: 'Agregar Paciente',
-      description: 'Registrar nuevo paciente',
-      icon: UserCheck,
-      color: 'bg-green-500 hover:bg-green-600',
-      onClick: () => {} // Placeholder para futura funcionalidad
+      id: '2',
+      user: 'María González',
+      action: 'Nueva recomendación',
+      detail: 'The Witcher 3 - Match: 95%',
+      time: 'Hace 15 min',
+      icon: Star,
+      color: 'bg-purple-100 text-purple-700'
     },
     {
-      title: 'Crear Receta',
-      description: 'Generar receta médica',
-      icon: FileText,
-      color: 'bg-purple-500 hover:bg-purple-600',
-      onClick: () => {} // Placeholder para futura funcionalidad
+      id: '3',
+      user: 'Carlos Ruiz',
+      action: 'Añadió a biblioteca',
+      detail: 'Elden Ring',
+      time: 'Hace 30 min',
+      icon: Gamepad2,
+      color: 'bg-green-100 text-green-700'
     },
     {
-      title: 'Consulta Virtual',
-      description: 'Iniciar videollamada',
-      icon: Phone,
-      color: 'bg-orange-500 hover:bg-orange-600',
-      onClick: () => {} // Placeholder para futura funcionalidad
+      id: '4',
+      user: 'Ana López',
+      action: 'Valoró juego',
+      detail: 'Stardew Valley - 5 estrellas',
+      time: 'Hace 1 hora',
+      icon: Star,
+      color: 'bg-yellow-100 text-yellow-700'
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-      case 'confirmada':
-        return 'bg-green-500 text-white';
-      case 'pending':
-      case 'pendiente':
-        return 'bg-yellow-500 text-white';
-      case 'scheduled':
-      case 'programada':
-        return 'bg-blue-500 text-white';
-      case 'completed':
-      case 'completada':
-        return 'bg-gray-500 text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
-  };
-
+  const topGames = [
+    { title: 'The Witcher 3: Wild Hunt', recommendations: 342, rating: 4.8 },
+    { title: 'Elden Ring', recommendations: 298, rating: 4.7 },
+    { title: 'Stardew Valley', recommendations: 276, rating: 4.9 },
+    { title: 'Hades', recommendations: 254, rating: 4.8 }
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Success Message */}
-      {successMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-          {successMessage}
-        </div>
-      )}
-
-      {/* Doctor Welcome Section */}
-      <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold mb-2">Panel Médico</h2>
-            <p className="text-teal-100">
-              {loading ? 'Cargando...' :
-               `Tienes ${dashboardStats?.today_appointments || 0} citas programadas hoy • ${dashboardStats?.pending_appointments || 0} consultas pendientes`}
+            <h2 className="text-2xl font-bold mb-2">Panel de Moderación</h2>
+            <p className="text-blue-100">
+              Monitorea y gestiona el sistema experto de recomendación de juegos
             </p>
           </div>
-          <Stethoscope className="w-8 h-8 text-teal-200" />
+          <Shield className="w-8 h-8 text-blue-200" />
         </div>
       </div>
 
-      {/* Doctor Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {doctorStats.map((stat, index) => {
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  <div className="flex items-center mt-2">
-                    <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-600">{stat.change}</span>
-                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{stat.sublabel}</p>
                 </div>
-                <div className={`${stat.color} p-3 rounded-lg`}>
+                <div className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -199,74 +152,92 @@ const DoctorDashboard: React.FC = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quick Actions */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
-          <div className="space-y-3">
-            {quickDoctorActions.map((action, index) => {
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Acceso Rápido</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <button
                   key={index}
-                  onClick={action.onClick}
-                  className={`w-full flex items-center p-3 rounded-lg ${action.color} text-white transition-colors`}
+                  onClick={() => navigate(action.path)}
+                  className={`flex flex-col items-center p-4 rounded-lg bg-gradient-to-r ${action.color} text-white transition-all hover:shadow-lg hover:scale-105 text-center`}
                 >
-                  <Icon className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">{action.title}</p>
-                    <p className="text-sm opacity-90">{action.description}</p>
-                  </div>
-                  <Plus className="w-4 h-4 ml-auto" />
+                  <Icon className="w-6 h-6 mb-2" />
+                  <p className="font-medium text-sm">{action.title}</p>
+                  <p className="text-xs opacity-90 mt-1">{action.subtitle}</p>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Today's Appointments */}
-        <div className="lg:col-span-2 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Citas de Hoy</h3>
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-gray-500">Cargando citas...</div>
-            </div>
-          ) : todayAppointments.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-gray-500">No hay citas programadas para hoy</div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {todayAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex-shrink-0">
-                      <Clock className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{appointment.patient_name}</p>
-                      <p className="text-sm text-gray-500">{appointment.reason} • {appointment.duration}</p>
-                    </div>
+        {/* Recent Activity */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Actividad Reciente</h3>
+            <Activity className="w-5 h-5 text-gray-400" />
+          </div>
+          <div className="space-y-3">
+            {recentActivity.map((activity) => {
+              const Icon = activity.icon;
+              return (
+                <div
+                  key={activity.id}
+                  className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className={`${activity.color} p-2 rounded-lg`}>
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-600">{formatTime(appointment.appointment_date)}</span>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
-                      {(appointment.status === 'confirmed' || appointment.status === 'confirmada') ? 'Confirmada' :
-                       (appointment.status === 'pending' || appointment.status === 'pendiente') ? 'Pendiente' :
-                       (appointment.status === 'scheduled' || appointment.status === 'programada') ? 'Programada' :
-                       (appointment.status === 'completed' || appointment.status === 'completada') ? 'Completada' : `[${appointment.status}]`}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{activity.user}</p>
+                    <p className="text-sm text-gray-600">{activity.action}</p>
+                    <p className="text-xs text-gray-500 mt-1">{activity.detail}</p>
                   </div>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">{activity.time}</span>
                 </div>
-              ))}
-            </div>
-          )}
-          <button className="w-full mt-4 py-2 text-sm text-teal-600 hover:text-teal-700 font-medium">
-            Ver todas las citas
-          </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
+      {/* Top Games */}
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Juegos Más Recomendados</h3>
+          <TrendingUp className="w-5 h-5 text-gray-400" />
+        </div>
+        <div className="space-y-3">
+          {topGames.map((game, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg hover:from-gray-100 hover:to-blue-100 transition-all cursor-pointer"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+                  #{index + 1}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">{game.title}</p>
+                  <div className="flex items-center space-x-4 mt-1">
+                    <span className="text-sm text-gray-600">
+                      {game.recommendations} recomendaciones
+                    </span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <span className="text-sm font-medium text-gray-900">{game.rating}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

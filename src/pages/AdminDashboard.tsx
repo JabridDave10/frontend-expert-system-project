@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Users,
   UserPlus,
@@ -11,7 +12,8 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
-  XCircle
+  XCircle,
+  Brain
 } from 'lucide-react';
 
 interface AdminStats {
@@ -91,25 +93,36 @@ const AdminDashboard: React.FC = () => {
       title: 'Gestionar Usuarios',
       description: 'Ver, editar y administrar usuarios del sistema',
       icon: Users,
-      color: 'bg-blue-500 hover:bg-blue-600'
+      color: 'bg-blue-500 hover:bg-blue-600',
+      link: null
+    },
+    {
+      title: 'Sistema Experto',
+      description: 'Administrar juegos y reglas del sistema experto',
+      icon: Brain,
+      color: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
+      link: '/dashboard/admin'
     },
     {
       title: 'Configuración Sistema',
       description: 'Configurar parámetros del sistema',
       icon: Settings,
-      color: 'bg-gray-500 hover:bg-gray-600'
+      color: 'bg-gray-500 hover:bg-gray-600',
+      link: null
     },
     {
       title: 'Reportes Analytics',
       description: 'Ver reportes detallados y analytics',
       icon: BarChart3,
-      color: 'bg-green-500 hover:bg-green-600'
+      color: 'bg-green-500 hover:bg-green-600',
+      link: null
     },
     {
       title: 'Base de Datos',
       description: 'Administrar y monitorear base de datos',
       icon: Database,
-      color: 'bg-purple-500 hover:bg-purple-600'
+      color: 'bg-purple-500 hover:bg-purple-600',
+      link: null
     }
   ];
 
@@ -215,13 +228,27 @@ const AdminDashboard: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             {quickAdminActions.map((action, index) => {
               const Icon = action.icon;
-              return (
+              const content = (
+                <>
+                  <Icon className="w-6 h-6 mb-2" />
+                  <p className="font-medium text-sm">{action.title}</p>
+                </>
+              );
+
+              return action.link ? (
+                <Link
+                  key={index}
+                  to={action.link}
+                  className={`flex flex-col items-center p-4 rounded-lg ${action.color} text-white transition-colors text-center`}
+                >
+                  {content}
+                </Link>
+              ) : (
                 <button
                   key={index}
                   className={`flex flex-col items-center p-4 rounded-lg ${action.color} text-white transition-colors text-center`}
                 >
-                  <Icon className="w-6 h-6 mb-2" />
-                  <p className="font-medium text-sm">{action.title}</p>
+                  {content}
                 </button>
               );
             })}

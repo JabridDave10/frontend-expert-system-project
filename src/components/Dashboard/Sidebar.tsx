@@ -23,11 +23,11 @@ interface SidebarItem {
   label: string;
   icon: React.ComponentType<any>;
   path: string;
-  userTypes?: ('player' | 'moderator' | 'admin')[];
+  userTypes?: ('player' | 'admin')[];
 }
 
 interface SidebarProps {
-  userType: 'player' | 'moderator' | 'admin';
+  userType: 'player' | 'admin';
   userName: string;
   onLogout: () => void;
 }
@@ -38,8 +38,6 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
 
   const getUserIcon = () => {
     switch (userType) {
-      case 'moderator':
-        return UserCog;
       case 'admin':
         return Shield;
       default:
@@ -49,8 +47,6 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
 
   const getUserTypeLabel = () => {
     switch (userType) {
-      case 'moderator':
-        return 'Moderador';
       case 'admin':
         return 'Administrador';
       default:
@@ -67,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
     },
     {
       id: 'expert-system',
-      label: 'Sistema Experto IA',
+      label: 'Sistema Experto',
       icon: Brain,
       path: '/dashboard/expert-system',
       userTypes: ['player']
@@ -80,58 +76,18 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, userName, onLogout }) => {
       userTypes: ['player']
     },
     {
-      id: 'my-games',
-      label: 'Mis Juegos',
-      icon: Gamepad2,
-      path: '/dashboard/my-games'
-    },
-    {
       id: 'discover',
-      label: 'Descubrir',
+      label: 'Descubrir Juegos',
       icon: Search,
       path: '/dashboard/discover',
       userTypes: ['player']
     },
     {
-      id: 'genres',
-      label: 'Explorar Géneros',
-      icon: Target,
-      path: '/dashboard/genres',
-      userTypes: ['player']
-    },
-    {
-      id: 'guides',
-      label: 'Guías y Tips',
-      icon: BookOpen,
-      path: '/dashboard/guides',
-      userTypes: ['player']
-    },
-    {
-      id: 'players',
-      label: 'Jugadores',
-      icon: Users,
-      path: '/dashboard/players',
-      userTypes: ['moderator', 'admin']
-    },
-    {
-      id: 'moderators',
-      label: 'Moderadores',
-      icon: UserCog,
-      path: '/dashboard/moderators',
+      id: 'admin',
+      label: 'Administración',
+      icon: Shield,
+      path: '/dashboard/admin',
       userTypes: ['admin']
-    },
-    {
-      id: 'reports',
-      label: 'Reportes',
-      icon: BarChart3,
-      path: '/dashboard/reports',
-      userTypes: ['moderator', 'admin']
-    },
-    {
-      id: 'history',
-      label: 'Historial',
-      icon: Clock,
-      path: '/dashboard/history'
     },
     {
       id: 'settings',
