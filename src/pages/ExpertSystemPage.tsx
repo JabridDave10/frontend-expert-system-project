@@ -5,7 +5,7 @@ import RecommendationCard from '../components/RecommendationCard'
 import ExplanationPanel from '../components/ExplanationPanel'
 import { Sparkles, ArrowRight, ArrowLeft, RotateCcw } from 'lucide-react'
 
-type Step = 'welcome' | 'genre' | 'quality' | 'multiplayer' | 'age' | 'platform' | 'budget' | 'results'
+type Step = 'welcome' | 'genre' | 'quality' | 'age' | 'platform' | 'budget' | 'results'
 
 const GENRE_OPTIONS: (typeof GENRES[number])[] = [
   'Action',
@@ -28,8 +28,6 @@ export default function ExpertSystemPage() {
   // User preferences
   const [selectedGenre, setSelectedGenre] = useState<string>('RPG')
   const [wantsQuality, setWantsQuality] = useState<boolean>(true)
-  const [prefersMultiplayer, setPrefersMultiplayer] = useState<boolean | null>(null)
-  const [prefersSingleplayer, setPrefersSingleplayer] = useState<boolean>(false)
   const [minAge, setMinAge] = useState<number>(18)
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null)
   const [budgetLevel, setBudgetLevel] = useState<BudgetLevel | null>(null)
@@ -77,24 +75,6 @@ export default function ExpertSystemPage() {
         })
       }
 
-      // Multijugador
-      if (prefersMultiplayer !== null) {
-        initialFacts.push({
-          entity: 'user',
-          attribute: 'prefers_multiplayer',
-          value: prefersMultiplayer,
-        })
-      }
-
-      // Singleplayer
-      if (prefersSingleplayer) {
-        initialFacts.push({
-          entity: 'user',
-          attribute: 'prefers_singleplayer',
-          value: true,
-        })
-      }
-
       // Edad
       initialFacts.push({
         entity: 'user',
@@ -137,8 +117,8 @@ export default function ExpertSystemPage() {
     }
   }
 
-  const stepNumber = ['welcome', 'genre', 'quality', 'multiplayer', 'age', 'platform', 'budget', 'results'].indexOf(currentStep)
-  const totalSteps = 7 // Excluding welcome and results
+  const stepNumber = ['welcome', 'genre', 'quality', 'age', 'platform', 'budget', 'results'].indexOf(currentStep)
+  const totalSteps = 5 // Excluding welcome and results
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
@@ -303,95 +283,6 @@ export default function ExpertSystemPage() {
                 Atrás
               </button>
               <button
-                onClick={() => goNext('multiplayer')}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:shadow-xl"
-              >
-                Siguiente
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Multiplayer */}
-        {currentStep === 'multiplayer' && (
-          <div className="bg-white rounded-3xl shadow-xl p-10 space-y-6 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900">¿Cómo te gusta jugar?</h2>
-            <p className="text-lg text-gray-600">Selecciona tu preferencia de modo de juego</p>
-
-            <div className="space-y-4 pt-4">
-              <div>
-                <label className="block text-lg font-semibold text-gray-900 mb-3">Modo Multijugador</label>
-                <div className="grid grid-cols-3 gap-4">
-                  <button
-                    onClick={() => setPrefersMultiplayer(true)}
-                    className={`py-4 px-4 rounded-xl font-bold transition-all ${
-                      prefersMultiplayer === true
-                        ? 'bg-purple-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    👥 Sí, me gusta
-                  </button>
-                  <button
-                    onClick={() => setPrefersMultiplayer(null)}
-                    className={`py-4 px-4 rounded-xl font-bold transition-all ${
-                      prefersMultiplayer === null
-                        ? 'bg-purple-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    🤷 No importa
-                  </button>
-                  <button
-                    onClick={() => setPrefersMultiplayer(false)}
-                    className={`py-4 px-4 rounded-xl font-bold transition-all ${
-                      prefersMultiplayer === false
-                        ? 'bg-purple-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    🚫 No me interesa
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-lg font-semibold text-gray-900 mb-3">Modo Un Jugador</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => setPrefersSingleplayer(true)}
-                    className={`py-4 px-4 rounded-xl font-bold transition-all ${
-                      prefersSingleplayer
-                        ? 'bg-blue-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    🎮 Sí, prefiero solo
-                  </button>
-                  <button
-                    onClick={() => setPrefersSingleplayer(false)}
-                    className={`py-4 px-4 rounded-xl font-bold transition-all ${
-                      !prefersSingleplayer
-                        ? 'bg-blue-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    No necesariamente
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-4 pt-6">
-              <button
-                onClick={() => goBack('quality')}
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-700 px-6 py-4 rounded-xl font-bold text-lg hover:bg-gray-50"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Atrás
-              </button>
-              <button
                 onClick={() => goNext('age')}
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:shadow-xl"
               >
@@ -402,7 +293,7 @@ export default function ExpertSystemPage() {
           </div>
         )}
 
-        {/* Step 4: Age */}
+        {/* Step 3: Age */}
         {currentStep === 'age' && (
           <div className="bg-white rounded-3xl shadow-xl p-10 space-y-6 max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-900">¿Cuál es tu edad?</h2>
@@ -447,7 +338,7 @@ export default function ExpertSystemPage() {
 
             <div className="flex gap-4 pt-6">
               <button
-                onClick={() => goBack('multiplayer')}
+                onClick={() => goBack('quality')}
                 className="flex-1 flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-700 px-6 py-4 rounded-xl font-bold text-lg hover:bg-gray-50"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -464,7 +355,7 @@ export default function ExpertSystemPage() {
           </div>
         )}
 
-        {/* Step 5: Platform */}
+        {/* Step 4: Platform */}
         {currentStep === 'platform' && (
           <div className="bg-white rounded-3xl shadow-xl p-10 space-y-6 max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-900">¿En qué plataforma juegas?</h2>
